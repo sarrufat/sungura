@@ -1,6 +1,6 @@
 package rabbit.client
 
-import org.sarrufat.rabbitmq.json.{ Overview, RabbitMQResult }
+import org.sarrufat.rabbitmq.json.Overview
 import org.specs2.mutable.Specification
 import akka.actor.ActorSystem
 import spray.client.pipelining._

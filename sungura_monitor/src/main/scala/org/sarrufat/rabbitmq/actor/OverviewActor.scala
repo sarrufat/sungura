@@ -23,7 +23,7 @@ object OverviewActor {
 
   private val propsOverviewActor = Props[OverviewActor]
   implicit val system = ActorSystem.create
-  def sender = system.actorOf(propsOverviewActor)
+  lazy val sender = system.actorOf(propsOverviewActor)
 
   import system.dispatcher // execution context for futures below
   //  import scala.concurrent.ExecutionContext.Implicits._

@@ -70,40 +70,41 @@ class OverviewControllerActor extends Actor {
 }
 
 @sfxml
-class OverviewController(private val msgRatesChart: LineChart[String, Int]) extends OVController {
+class OverviewController(private val msgRatesChart: LineChart[String, Int], val queueTotalsChart: LineChart[String, Long]) extends OVController {
   val toChartData = (xy: (String, Int)) ⇒ XYChart.Data[String, Int](xy._1, xy._2)
+  val toChartLData = (xy: (String, Long)) ⇒ XYChart.Data[String, Long](xy._1, xy._2)
 
   //  val obuf = ObservableBuffer(series)
   override def setDatas(values: OverviewControllerActor.OVValue) = {
-
-    val seriesp = new XYChart.Series[String, Int] {
-      name = "Publish"
-      data = values.map(v ⇒ (v.stime, v.pubDet)).map(toChartData)
+    def setMessagesStats = {
+      def createSerie(nam: String)(fv: OverviewWTS ⇒ Int) = {
+        new XYChart.Series[String, Int] {
+          name = nam
+          data = values.map(v ⇒ (v.stime, fv(v))).map(toChartData)
+        }
+      }
+      val seriesp = createSerie("Publish") { v ⇒ v.pubDet }
+      val seriesa = createSerie("Ack") { v ⇒ v.ackDet }
+      val seriesdel = createSerie("Deliver") { v ⇒ v.delGetDet }
+      val seriesdelNA = createSerie("Deliver (noack)") { v ⇒ v.delvNoCackDet }
+      val seriesReDel = createSerie("Redelivered") { v ⇒ v.reDelDet }
+      val seriesGet = createSerie("Get") { v ⇒ v.getDet }
+      msgRatesChart.data = ObservableBuffer(seriesp.delegate, seriesdel.delegate, seriesReDel.delegate, seriesa.delegate, seriesGet.delegate, seriesdelNA.delegate)
     }
-    val seriesa = new XYChart.Series[String, Int] {
-      name = "Ack"
-      data = values.map(v ⇒ (v.stime, v.ackDet)).map(toChartData)
+    def setQueueTotlas = {
+      def createSerie(nam: String)(fv: OverviewWTS ⇒ Long) = {
+        new XYChart.Series[String, Long] {
+          name = nam
+          data = values.map(v ⇒ (v.stime, fv(v))).map(toChartLData)
+        }
+      }
+      val qReadySerie = createSerie("Ready") { v ⇒ v.ov.queue_totals.messages_ready }
+      val qTotalSerie = createSerie("Total") { v ⇒ v.ov.queue_totals.messages }
+      val unackSerie = createSerie("Unack.") { v ⇒ v.ov.queue_totals.messages_unacknowledged }
+      queueTotalsChart.data = ObservableBuffer(qReadySerie.delegate, unackSerie.delegate, qTotalSerie.delegate)
     }
-
-    val seriesdel = new XYChart.Series[String, Int] {
-      name = "Deliver"
-      data = values.map(v ⇒ (v.stime, v.delvDet + v.delGetDet)).map(toChartData)
-    }
-    val seriesdelNA = new XYChart.Series[String, Int] {
-      name = "Deliver (noack)"
-      data = values.map(v ⇒ (v.stime, v.delvNoCackDet)).map(toChartData)
-    }
-    val seriesReDel = new XYChart.Series[String, Int] {
-      name = "Redelivered"
-      data = values.map(v ⇒ (v.stime, v.reDelDet)).map(toChartData)
-    }
-
-    val seriesGet = new XYChart.Series[String, Int] {
-      name = "Get"
-      data = values.map(v ⇒ (v.stime, v.getDet)).map(toChartData)
-    }
-
-    msgRatesChart.data = ObservableBuffer(seriesp.delegate, seriesdel.delegate, seriesReDel.delegate, seriesa.delegate, seriesGet.delegate, seriesdelNA.delegate)
+    setMessagesStats
+    setQueueTotlas
   }
   OverviewControllerActor.controller = this
 
