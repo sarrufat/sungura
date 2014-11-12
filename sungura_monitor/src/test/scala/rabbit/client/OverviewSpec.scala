@@ -5,10 +5,7 @@ import org.specs2.mutable.Specification
 import akka.actor.ActorSystem
 import spray.client.pipelining._
 import spray.httpx.SprayJsonSupport
-import org.sarrufat.rabbitmq.json.RabbitMQResult
 import scala.util.Success
-import org.sarrufat.rabbitmq.json.RabbitMQResult
-import org.sarrufat.rabbitmq.json.Overview
 import org.specs2.control.Debug
 import scala.util.Failure
 import spray.http.BasicHttpCredentials
@@ -31,7 +28,7 @@ class OverviewSpec extends Specification with Debug {
   val credentials = BasicHttpCredentials("restUser", "restUser")
 
   lazy val responseFuture = pipeline {
-    Get("http://localhost:15672/api/overview") ~> addCredentials(credentials)
+    Get("http://srv-sap-ewmd:15672/api/overview") ~> addCredentials(credentials)
   }
   "Response Future has" in {
 
@@ -43,8 +40,8 @@ class OverviewSpec extends Specification with Debug {
     }
     Await.ready(retProm.future, Duration(60, "sec"))
     val ret = retProm.future.value.get
-    "management_version must be 3.2.3" in ret.get.management_version === "3.2.3"
-    "rabbitmq_version must be 3.2.3" in ret.get.rabbitmq_version === "3.2.3"
+    "management_version must be 3.3.0" in ret.get.management_version === "3.3.0"
+    "rabbitmq_version must be 3.3.0" in ret.get.rabbitmq_version === "3.3.0"
     "statistics_level must be fine" in ret.get.statistics_level === "fine"
     "Exchange types length must be >= 4" in ret.get.exchange_types.length >= 4
     val node = ret.get.node
