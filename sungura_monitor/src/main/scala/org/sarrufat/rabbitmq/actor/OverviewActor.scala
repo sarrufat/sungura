@@ -1,20 +1,18 @@
 package org.sarrufat.rabbitmq.actor
 
+import scala.concurrent.{ Await, Promise }
+import scala.concurrent.duration.{ Duration, DurationInt }
+import scala.util.{ Failure, Success }
+
+import org.sarrufat.fx.MainUIFX
 import org.sarrufat.fx.controller.OverviewControllerActor
-import org.sarrufat.rabbitmq.json._
-import scala.concurrent.duration._
-import spray.client.pipelining._
-import spray.http.BasicHttpCredentials
-import spray.httpx.SprayJsonSupport
-import akka.actor.{ Actor, ActorLogging }
-import akka.actor.Props
-import akka.actor.ActorSystem
-import akka.actor.Actor._
-import scala.concurrent.Promise
-import scala.concurrent.Await
+import org.sarrufat.rabbitmq.json.{ Overview, OverviewWTS }
+
+import akka.actor.{ Actor, ActorLogging, ActorSystem, Props, actorRef2Scala }
 import grizzled.slf4j.Logger
-import scala.util.Success
-import scala.util.Failure
+import spray.client.pipelining.{ Get, WithTransformation, WithTransformerConcatenation, addCredentials, sendReceive, sendReceive$default$3, unmarshal }
+import spray.http.BasicHttpCredentials
+import spray.httpx.SprayJsonSupport._
 
 case class Error(msg: String) extends Exception(msg)
 
@@ -33,13 +31,12 @@ object OverviewActor {
     new MakeRequest)
   def startPoll = cancellable
   import org.sarrufat.rabbitmq.json.OverviewProtocol._
-  import SprayJsonSupport._
   private val pipeline = sendReceive ~> unmarshal[Overview]
-  private val credentials = BasicHttpCredentials("restUser", "restUser")
+  private val credentials = BasicHttpCredentials(MainUIFX.USER, MainUIFX.PASSWORD)
 
   private def sendREST = {
     lazy val responseFuture = pipeline {
-      Get("http://srv-sap-ewmd:15672/api/overview") ~> addCredentials(credentials)
+      Get("http://" + MainUIFX.HOST + ":15672/api/overview") ~> addCredentials(credentials)
     }
     lazy val retProm = Promise[Overview]()
     responseFuture onComplete {

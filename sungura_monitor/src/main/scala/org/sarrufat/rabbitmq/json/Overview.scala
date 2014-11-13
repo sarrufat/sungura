@@ -6,7 +6,7 @@ import scala.Double
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-case class Overview(val management_version: String, val statistics_level: String, val rabbitmq_version: String, val erlang_version: String, val node: String, val erlang_full_version: String, val statistics_db_node: String, val exchange_types: List[ExchangeType], val message_stats: MessagesStats, val queue_totals: QueueTotals) {
+case class Overview(val management_version: String, val statistics_level: String, val rabbitmq_version: String, val erlang_version: String, val node: String, val erlang_full_version: String, val statistics_db_node: String, val exchange_types: List[ExchangeType], val message_stats: MessagesStats, val queue_totals: QueueTotals, val object_totals: ObjectTotals) {
   override def toString = "message_stats{ " + message_stats + "}"
 }
 case class ExchangeType(val name: String, val description: String, val enabled: Boolean)
@@ -18,13 +18,14 @@ case class MessagesStats(val publish: Option[Long], val ack: Option[Long], val d
 }
 
 case class QueueTotals(val messages: Long, val messages_ready: Long, val messages_unacknowledged: Long, val messages_details: Option[Details], val messages_ready_details: Option[Details], val messages_unacknowledged_details: Option[Details])
-
+case class ObjectTotals(val consumers: Int, val queues: Int, val exchanges: Int, val connections: Int, val channels: Int)
 object OverviewProtocol extends DefaultJsonProtocol {
   implicit val detailsFormat = jsonFormat1(Details)
   implicit val messagesStatFormat = jsonFormat14(MessagesStats)
   implicit val extypeFormat = jsonFormat3(ExchangeType)
   implicit val queuetotalsFormat = jsonFormat6(QueueTotals)
-  implicit val overviewFormat = jsonFormat10(Overview)
+  implicit val ObjectTotalsFormat = jsonFormat5(ObjectTotals)
+  implicit val overviewFormat = jsonFormat11(Overview)
 }
 
 class OverviewWTS(val stime: String, val ov: Overview) {

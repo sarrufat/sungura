@@ -21,6 +21,15 @@ import scalafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
 import javafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
+import scalafx.scene.layout.AnchorPane
+import scalafx.scene.control.Button
+import scalafx.event.ActionEvent
+import scalafxml.core.FXMLView
+import scalafxml.core.NoDependencyResolver
+import scalafx.stage.Stage
+import scalafx.stage.Modality
+import scalafx.scene.Scene
+import javafx.{ scene ⇒ jfxs }
 
 class OverviewTask {
   val logger = Logger[this.type]
@@ -70,7 +79,9 @@ class OverviewControllerActor extends Actor {
 }
 
 @sfxml
-class OverviewController(private val msgRatesChart: LineChart[String, Int], val queueTotalsChart: LineChart[String, Long]) extends OVController {
+class OverviewController(private val msgRatesChart: LineChart[String, Int], val queueTotalsChart: LineChart[String, Long], val connectionsButton: Button, val channelsButton: Button, val exchangesButton: Button, val queuesButton: Button, val consumersButton: Button) extends OVController {
+  val logger = Logger[this.type]
+
   val toChartData = (xy: (String, Int)) ⇒ XYChart.Data[String, Int](xy._1, xy._2)
   val toChartLData = (xy: (String, Long)) ⇒ XYChart.Data[String, Long](xy._1, xy._2)
 
@@ -103,9 +114,29 @@ class OverviewController(private val msgRatesChart: LineChart[String, Int], val 
       val unackSerie = createSerie("Unack.") { v ⇒ v.ov.queue_totals.messages_unacknowledged }
       queueTotalsChart.data = ObservableBuffer(qReadySerie.delegate, unackSerie.delegate, qTotalSerie.delegate)
     }
+    def setButtonsLables = {
+      val lastOv = values.last
+      connectionsButton.setText("Connections " + lastOv.ov.object_totals.connections)
+      channelsButton.setText("Channels " + lastOv.ov.object_totals.channels)
+      exchangesButton.setText("Exchanges " + lastOv.ov.object_totals.exchanges)
+      queuesButton.setText("Queues " + lastOv.ov.object_totals.queues)
+      consumersButton.setText("Consumers " + lastOv.ov.object_totals.consumers)
+    }
     setMessagesStats
     setQueueTotlas
+    setButtonsLables
   }
+
+  def onConnections(event: ActionEvent) {
+    val connLayout = FXMLView(getClass.getResource("/org/sarrufat/fx/view/ConnectionsView.fxml"), NoDependencyResolver)
+    val stage = new Stage
+    stage.setTitle("Connections")
+    stage.initModality(Modality.APPLICATION_MODAL)
+    val scene = new Scene(new jfxs.Scene(connLayout))
+    stage.setScene(scene)
+    stage.show
+  }
+
   OverviewControllerActor.controller = this
 
 }

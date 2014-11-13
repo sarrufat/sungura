@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+   <center>
+      <TableView fx:id="connTable" prefHeight="275.0" prefWidth="700.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn prefWidth="119.0" text="Name" />
+          <TableColumn prefWidth="84.0" text="Protocol" />
+            <TableColumn prefWidth="62.0" text="Client" />
+            <TableColumn prefWidth="75.0" text="From Client" />
+            <TableColumn prefWidth="75.0" text="To Client" />
+            <TableColumn prefWidth="75.0" text="Timeout" />
+            <TableColumn prefWidth="75.0" text="Channels" />
+            <TableColumn prefWidth="75.0" text="User Name" />
+            <TableColumn prefWidth="75.0" text="State" />
+        </columns>
+      </TableView>
+   </center>
+</BorderPane>
