@@ -11,6 +11,8 @@ import com.typesafe.config.ConfigFactory
 import org.sarrufat.rabbitmq.actor.OverviewActor
 import org.sarrufat.rabbitmq.json.Overview
 import scalafxml.core.NoDependencyResolver
+import org.sarrufat.rabbitmq.actor.MainActor
+import java.lang.System
 
 object MainUIFX extends JFXApp {
   lazy val logger = Logger[this.type]
@@ -25,5 +27,9 @@ object MainUIFX extends JFXApp {
     title = "RabbitMQ Monitor"
     scene = new Scene(rootLayout)
   }
-  OverviewActor.startPoll
+  stage.onCloseRequest = handle {
+    MainActor.stopOverview
+    System.exit(0)
+  }
+  MainActor.startPoll
 }

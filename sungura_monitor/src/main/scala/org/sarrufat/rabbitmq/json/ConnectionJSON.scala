@@ -7,7 +7,7 @@ case class Recv_oct_details(rate: Double)
 case class Capabilities(
   exchange_exchange_bindings: Boolean,
   consumer_cancel_notify: Boolean,
-  basic_nack: Boolean,
+  //  basic_nack: Boolean,
   publisher_confirms: Boolean)
 case class Client_properties(
   product: String,
@@ -17,9 +17,9 @@ case class Client_properties(
   copyright: String,
   version: String)
 case class ConnectionsJSON(
-  recv_oct: Int,
+  recv_oct: Long,
   recv_oct_details: Recv_oct_details,
-  send_oct: Int,
+  send_oct: Long,
   send_oct_details: Recv_oct_details,
   recv_cnt: Int,
   send_cnt: Int,
@@ -52,7 +52,7 @@ case class ConnectionsJSON(
 
 object ConnectionsJSONProto extends DefaultJsonProtocol {
   implicit val recv_oct_detailsFormat = jsonFormat1(Recv_oct_details)
-  implicit val capabilitiesFormat = jsonFormat4(Capabilities)
+  implicit val capabilitiesFormat = jsonFormat3(Capabilities)
   implicit val clientPropertiesFormat = jsonFormat6(Client_properties)
   implicit val connectionsJSONFormat = jsonFormat17(ConnectionsJSON)
 }

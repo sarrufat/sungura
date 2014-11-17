@@ -17,22 +17,28 @@ import org.sarrufat.rabbitmq.json.Overview
 import akka.agent.Agent
 import org.sarrufat.rabbitmq.json.OverviewWTS
 import scalafx.collections.ObservableBuffer
-import scalafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
-import javafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.layout.AnchorPane
 import scalafx.scene.control.Button
-import scalafx.event.ActionEvent
+import scalafx.event.{ ActionEvent, EventIncludes ⇒ sfxei }
 import scalafxml.core.FXMLView
 import scalafxml.core.NoDependencyResolver
 import scalafx.stage.Stage
 import scalafx.stage.Modality
 import scalafx.scene.Scene
 import javafx.{ scene ⇒ jfxs }
+import javafx.{ event ⇒ jfxe }
+import javafx.{ stage ⇒ jfxst }
+import javafx.beans.{ property ⇒ jfxb }
+import org.sarrufat.rabbitmq.actor.MainActor
+import org.sarrufat.rabbitmq.actor.MainActor
+import org.sarrufat.rabbitmq.actor.MainActor
+import org.sarrufat.rabbitmq.actor.MainActor
+import grizzled.slf4j.Logging
 
-class OverviewTask {
-  val logger = Logger[this.type]
+class OverviewTask extends Logging {
+
   private val sjxTask = Task[String] {
 
     Platform.runLater(
@@ -84,7 +90,7 @@ class OverviewController(private val msgRatesChart: LineChart[String, Int], val 
 
   val toChartData = (xy: (String, Int)) ⇒ XYChart.Data[String, Int](xy._1, xy._2)
   val toChartLData = (xy: (String, Long)) ⇒ XYChart.Data[String, Long](xy._1, xy._2)
-
+  MainActor.startOverview
   //  val obuf = ObservableBuffer(series)
   override def setDatas(values: OverviewControllerActor.OVValue) = {
     def setMessagesStats = {
@@ -134,9 +140,11 @@ class OverviewController(private val msgRatesChart: LineChart[String, Int], val 
     stage.initModality(Modality.APPLICATION_MODAL)
     val scene = new Scene(new jfxs.Scene(connLayout))
     stage.setScene(scene)
+    stage.onCloseRequest = sfxei.handle {
+      MainActor.stopConnections
+    }
     stage.show
   }
-
   OverviewControllerActor.controller = this
 
 }
