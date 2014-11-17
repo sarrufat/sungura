@@ -28,7 +28,7 @@ class StateTableCell extends TableCell[ModelConnection, String] {
     tLab.text = newVal
     newVal match {
       case "running" ⇒ image.image = LocalImage.greenImage
-      case ""        ⇒
+      case null | "" ⇒
       case _         ⇒ image.image = LocalImage.redImage
     }
   }

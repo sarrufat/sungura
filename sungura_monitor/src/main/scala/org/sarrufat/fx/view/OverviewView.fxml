@@ -58,7 +58,7 @@
                         <CategoryAxis side="BOTTOM" />
                      </xAxis>
                      <yAxis>
-                        <NumberAxis label="M/S" side="LEFT" />
+                        <NumberAxis label="Messages" side="LEFT" />
                      </yAxis>
                   </LineChart>
                </children>

@@ -86,10 +86,11 @@ class OverviewControllerActor extends Actor {
 
 @sfxml
 class OverviewController(private val msgRatesChart: LineChart[String, Int], val queueTotalsChart: LineChart[String, Long], val connectionsButton: Button, val channelsButton: Button, val exchangesButton: Button, val queuesButton: Button, val consumersButton: Button) extends OVController {
-  val logger = Logger[this.type]
+  //  val logger = Logger[this.type]
 
   val toChartData = (xy: (String, Int)) ⇒ XYChart.Data[String, Int](xy._1, xy._2)
   val toChartLData = (xy: (String, Long)) ⇒ XYChart.Data[String, Long](xy._1, xy._2)
+  private var connectionsOpen = false
   MainActor.startOverview
   //  val obuf = ObservableBuffer(series)
   override def setDatas(values: OverviewControllerActor.OVValue) = {
@@ -134,16 +135,21 @@ class OverviewController(private val msgRatesChart: LineChart[String, Int], val 
   }
 
   def onConnections(event: ActionEvent) {
-    val connLayout = FXMLView(getClass.getResource("/org/sarrufat/fx/view/ConnectionsView.fxml"), NoDependencyResolver)
-    val stage = new Stage
-    stage.setTitle("Connections")
-    stage.initModality(Modality.APPLICATION_MODAL)
-    val scene = new Scene(new jfxs.Scene(connLayout))
-    stage.setScene(scene)
-    stage.onCloseRequest = sfxei.handle {
-      MainActor.stopConnections
+    if (!connectionsOpen) {
+      connectionsOpen = true
+      val connLayout = FXMLView(getClass.getResource("/org/sarrufat/fx/view/ConnectionsView.fxml"), NoDependencyResolver)
+      val stage = new Stage
+      stage.setTitle("Connections")
+      stage.initModality(Modality.NONE)
+      val scene = new Scene(new jfxs.Scene(connLayout))
+      stage.setScene(scene)
+      stage.onCloseRequest = sfxei.handle {
+        MainActor.stopConnections
+        connectionsOpen = false
+      }
+      stage.show
     }
-    stage.show
+
   }
   OverviewControllerActor.controller = this
 
