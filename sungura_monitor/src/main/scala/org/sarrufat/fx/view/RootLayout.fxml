@@ -38,7 +38,11 @@
           </Tab>
           <Tab fx:id="connectionsTab" closable="false" text="Connections">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" >
+               <children>
+                        <fx:include source="ConnectionsView.fxml" />
+                     </children>
+              </AnchorPane>
             </content>
           </Tab>
             <Tab fx:id="channelsTab" closable="false" text="Channels">
