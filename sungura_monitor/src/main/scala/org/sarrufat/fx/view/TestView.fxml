@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.collections.*?>
+
+<BorderPane prefHeight="125.0" prefWidth="211.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sarrufat.fx.controller.TestViewController">
+	<bottom>
+		<HBox BorderPane.alignment="CENTER">
+			<children>
+				<Button mnemonicParsing="false" onAction="#startStopTest" text="Start" />
+			</children>
+		</HBox>
+	</bottom>
+	<center>
+		<VBox BorderPane.alignment="CENTER">
+			<children>
+				<ComboBox fx:id="nmCombo" onAction="#onNMSelect" prefHeight="25.0" prefWidth="178.0" promptText="Number of messages">
+					
+				</ComboBox>
+            <ComboBox fx:id="msCombo" onAction="#onMSSelect" prefHeight="25.0" prefWidth="178.0" promptText="Message size" />
+			</children>
+			<padding>
+				<Insets bottom="5.0" />
+			</padding>
+		</VBox>
+	</center>
+	<padding>
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+	</padding>
+</BorderPane>

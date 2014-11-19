@@ -10,6 +10,7 @@ import scala.Enumeration
 import akka.agent.Agent
 import org.sarrufat.rabbitmq.actor.ConnectionActor
 import grizzled.slf4j.Logging
+import org.sarrufat.rabbitmq.actor.TestProducerActor
 
 object Command extends Enumeration {
   type CommandT = Value
@@ -17,7 +18,7 @@ object Command extends Enumeration {
 }
 object CActors extends Enumeration {
   type CActor = Value
-  val Overview, Connections = Value
+  val Overview, Connections, Test = Value
 }
 private[actor] case class PulseRequest(action: Symbol)
 private[actor] case class ControlCommand(action: Command.CommandT, actor: CActors.CActor)
@@ -33,13 +34,14 @@ object MainActor {
   def stopOverview = sender ! ControlCommand(Command.Stop, CActors.Overview)
   def startConnections = sender ! ControlCommand(Command.Start, CActors.Connections)
   def stopConnections = sender ! ControlCommand(Command.Stop, CActors.Connections)
-
+  def startTest(nm: Int, sm: Int) = sender ! StartTest(nm, sm)
+  def stopTest = sender ! ControlCommand(Command.Stop, CActors.Test)
 }
 class MainActor extends Actor with Logging {
 
   lazy val overviewActor = context.actorOf(Props[OverviewActor], "Overview")
   lazy val connectionActor = context.actorOf(Props[ConnectionActor], "Connection")
-
+  lazy val testProdActor = context.actorOf(Props[TestProducerActor], "TestProducer")
   import scala.concurrent.ExecutionContext.Implicits.global
   val overviewStatus = Agent(false)
   val connectionsStatus = Agent(false)
@@ -50,6 +52,7 @@ class MainActor extends Actor with Logging {
       ac match {
         case CActors.Overview    ⇒ overviewStatus send true
         case CActors.Connections ⇒ connectionsStatus send true
+        case CActors.Test        ⇒ testProdActor ! true
       }
     }
     case ControlCommand(Command.Stop, ac) ⇒ {
@@ -57,6 +60,7 @@ class MainActor extends Actor with Logging {
       ac match {
         case CActors.Overview    ⇒ overviewStatus send false
         case CActors.Connections ⇒ connectionsStatus send false
+        case CActors.Test        ⇒ testProdActor ! false
       }
     }
     case PulseRequest(_) ⇒ {
@@ -64,6 +68,10 @@ class MainActor extends Actor with Logging {
         overviewActor ! PulseRequest('Overview)
       if (connectionsStatus get)
         connectionActor ! PulseRequest('Connections)
+    }
+    case st: StartTest ⇒ {
+      testProdActor ! st
+      TestConsumerActor.createConsumer
     }
     case _ ⇒ logger.warn("Unknow message")
   }

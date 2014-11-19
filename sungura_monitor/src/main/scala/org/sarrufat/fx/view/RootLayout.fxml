@@ -12,13 +12,28 @@
    <top>
       <VBox maxHeight="75.0" prefHeight="58.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <ToolBar maxHeight="75.0" prefHeight="58.0" prefWidth="600.0">
+            <ToolBar maxHeight="75.0">
                <items>
                   <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" y="10.0">
                      <image>
                         <Image url="@rabbitmqlogo.png" />
                      </image>
                   </ImageView>
+                  <Separator orientation="VERTICAL" />
+                  <MenuBar>
+                    <menus>
+                      <Menu mnemonicParsing="false" text="Setup">
+                        <items>
+                          <MenuItem mnemonicParsing="false" text="Connection" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Test">
+                        <items>
+                          <MenuItem mnemonicParsing="false" onAction="#openTest" text="New Test" />
+                        </items>
+                      </Menu>
+                    </menus>
+                  </MenuBar>
                </items>
             </ToolBar>
          </children>
