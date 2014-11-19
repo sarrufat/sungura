@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sarrufat.fx.controller.ConnectionsController">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sarrufat.fx.controller.ConnectionsController">
    <center>
-      <TableView fx:id="connTable" minHeight="150.0" minWidth="200.0" prefHeight="600.0" prefWidth="800.0" BorderPane.alignment="CENTER">
-             <!--  <columns>
-                <TableColumn prefWidth="119.0" text="Name" />
-                <TableColumn prefWidth="84.0" text="Protocol" />
-                  <TableColumn prefWidth="62.0" text="Client" />
-                  <TableColumn prefWidth="75.0" text="From Client" />
-                  <TableColumn prefWidth="75.0" text="To Client" />
-                  <TableColumn prefWidth="75.0" text="Timeout" />
-                  <TableColumn prefWidth="75.0" text="Channels" />
-                  <TableColumn prefWidth="75.0" text="User Name" />
-                  <TableColumn prefWidth="75.0" text="State" />
-              </columns> -->
-            </TableView>
+      <TableView fx:id="connTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="512.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
    </center>
 </BorderPane>

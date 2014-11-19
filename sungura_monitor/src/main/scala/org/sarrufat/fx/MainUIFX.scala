@@ -27,6 +27,7 @@ object MainUIFX extends JFXApp {
     title = "RabbitMQ Monitor"
     scene = new Scene(rootLayout)
   }
+  stage.setMaximized(true)
   stage.onCloseRequest = handle {
     MainActor.stopOverview
     System.exit(0)

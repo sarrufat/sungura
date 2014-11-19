@@ -44,7 +44,7 @@ class OverviewTask extends Logging {
     Platform.runLater(
       Try(OverviewControllerActor.controller.setDatas(OverviewControllerActor.getAgent)) match {
         case Success(s) ⇒ logger.debug("running  OverviewTask OK")
-        case Failure(e) ⇒ logger.error("Error: " + e)
+        case Failure(e) ⇒ logger.error("Error: ", e)
       })
     "Resultado"
   }
@@ -85,7 +85,7 @@ class OverviewControllerActor extends Actor {
 }
 
 @sfxml
-class OverviewController(private val msgRatesChart: LineChart[String, Int], val queueTotalsChart: LineChart[String, Long], val connectionsButton: Button, val channelsButton: Button, val exchangesButton: Button, val queuesButton: Button, val consumersButton: Button) extends OVController {
+class OverviewController(private val msgRatesChart: LineChart[String, Int], val queueTotalsChart: LineChart[String, Long]) extends OVController {
   //  val logger = Logger[this.type]
 
   val toChartData = (xy: (String, Int)) ⇒ XYChart.Data[String, Int](xy._1, xy._2)
@@ -121,17 +121,10 @@ class OverviewController(private val msgRatesChart: LineChart[String, Int], val 
       val unackSerie = createSerie("Unack.") { v ⇒ v.ov.queue_totals.messages_unacknowledged }
       queueTotalsChart.data = ObservableBuffer(qReadySerie.delegate, unackSerie.delegate, qTotalSerie.delegate)
     }
-    def setButtonsLables = {
-      val lastOv = values.last
-      connectionsButton.setText("Connections " + lastOv.ov.object_totals.connections)
-      channelsButton.setText("Channels " + lastOv.ov.object_totals.channels)
-      exchangesButton.setText("Exchanges " + lastOv.ov.object_totals.exchanges)
-      queuesButton.setText("Queues " + lastOv.ov.object_totals.queues)
-      consumersButton.setText("Consumers " + lastOv.ov.object_totals.consumers)
-    }
+
     setMessagesStats
     setQueueTotlas
-    setButtonsLables
+
   }
 
   def onConnections(event: ActionEvent) {
