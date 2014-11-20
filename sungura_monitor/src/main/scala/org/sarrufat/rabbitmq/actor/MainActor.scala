@@ -3,10 +3,10 @@ package org.sarrufat.rabbitmq.actor
 import akka.actor.Actor
 import akka.actor.Props
 import akka.actor.ActorSystem
-import scala.concurrent.duration._
 import akka.actor.Props
 import grizzled.slf4j.Logger
 import scala.Enumeration
+import scala.concurrent.duration._
 import akka.agent.Agent
 import org.sarrufat.rabbitmq.actor.ConnectionActor
 import grizzled.slf4j.Logging
@@ -71,7 +71,6 @@ class MainActor extends Actor with Logging {
     }
     case st: StartTest ⇒ {
       testProdActor ! st
-      TestConsumerActor.createConsumer
     }
     case _ ⇒ logger.warn("Unknow message")
   }

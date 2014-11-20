@@ -12,7 +12,7 @@ import scala.concurrent.Promise
 import scala.util.Success
 import scala.util.Failure
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import org.sarrufat.fx.controller.ConnectionsControllerActor
 
 object ConnectionActor extends Logging {
@@ -34,7 +34,7 @@ object ConnectionActor extends Logging {
       case Success(somethingUnexpected)       ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)                     ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, Duration(60, "sec"))
+    Await.ready(retProm.future, 60 seconds)
     val ret = retProm.future.value.get
     logger.debug("Recibido: " + ret.get)
     ConnectionsControllerActor.sender ! ret.get

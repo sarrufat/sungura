@@ -44,7 +44,7 @@ object OverviewActor extends Logging {
       case Success(somethingUnexpected) ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)               ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, Duration(60, "sec"))
+    Await.ready(retProm.future, 60 seconds)
     val ret = retProm.future.value.get
     logger.debug("Recibido: " + ret.get)
     OverviewControllerActor.sender ! OverviewWTS(ret.get)

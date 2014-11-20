@@ -28,6 +28,7 @@ object TestProducerActor {
     lazy val producer = ConnectionOwner.createChildActor(conn, ChannelOwner.props())
     // wait till everyone is actually connected to the broker
     waitForConnection(system, conn, producer).await(10, TimeUnit.SECONDS)
+    TestConsumerActor.createConsumer
     producer
   }
 
