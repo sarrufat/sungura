@@ -50,9 +50,7 @@ class RootController extends Logging {
     stage.initModality(Modality.WINDOW_MODAL)
     val scene = new Scene(new jfxs.Scene(testView))
     stage.setScene(scene)
-    stage.onCloseRequest = sfxei.handle {
 
-    }
     stage.show
 
   }
