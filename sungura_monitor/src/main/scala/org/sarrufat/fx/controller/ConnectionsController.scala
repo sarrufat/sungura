@@ -13,6 +13,8 @@ import javafx.scene.control.TreeTableView
 import scalafx.scene.layout.AnchorPane
 import javafx.scene.control.TreeTableView
 import org.sarrufat.fx.model.ChannelModel
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 
 class ConnectionsUpdaterTask extends Logging {
   private val sjxTask = Task[Unit] {
@@ -44,9 +46,18 @@ class ConnectionsController(val connTable: TableView[ModelConnection], val chanT
   val obuf = ObservableBuffer[ModelConnection](buffer)
   val chanbuffer = List[ChannelModel]()
   val chanOBuf = ObservableBuffer[ChannelModel](chanbuffer)
+
   MainActor.startConnections
   connTable.columns ++= ModelConnection.tableColumns
   connTable.items = obuf
+  // Add selection listener
+  connTable.getSelectionModel.selectedItemProperty.addListener(new ChangeListener[ModelConnection] {
+    def changed(observable: ObservableValue[_ <: ModelConnection], oldValue: ModelConnection, newValue: ModelConnection): Unit = {
+      if (newValue != null) ConnectionsControllerActor.setFilterChannel(true, newValue.pame.value)
+      else ConnectionsControllerActor.setFilterChannel(false, "")
+      new ChannelUpdaterTask().run
+    }
+  })
   ConnectionsControllerStore.controller = this
   chanTable.columns ++= ChannelModel.tableColumns
   chanTable.items = chanOBuf

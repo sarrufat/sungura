@@ -35,6 +35,7 @@ class StateTableCell[M] extends TableCell[M, String] {
       case "flow"    ⇒ image.image = LocalImage.flowImage
       case "idle"    ⇒ image.image = LocalImage.idleImage
       case null | "" ⇒
+        tLab.text = ""; image.image = null
       case _         ⇒ image.image = LocalImage.redImage
     }
   }

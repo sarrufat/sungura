@@ -24,6 +24,7 @@ object ConnectionsControllerActor extends Logging {
   import scala.concurrent.ExecutionContext.Implicits.global
   private val modelAgent = Agent(List[ModelConnection]())
   private val chanModelAgent = Agent(List[ChannelModel]())
+  private val filterChanel = Agent((false, ""))
   private def updateModel(msg: ConnectionWrapper) {
     logger.debug("Recibido: " + msg)
     val newModel = msg.seq.map { cn ⇒ new ModelConnection(cn) }
@@ -37,7 +38,14 @@ object ConnectionsControllerActor extends Logging {
   }
 
   def getModel = modelAgent get
-  def getChannModel = chanModelAgent get
+  def getChannModel = {
+    filterChanel get match {
+      case (true, f) ⇒ { chanModelAgent.get.filter(ch ⇒ ch.pname.value.startsWith(f)) }
+      case _         ⇒ chanModelAgent get
+    }
+  }
+
+  def setFilterChannel(b: Boolean, filter: String) = filterChanel send (b, filter)
 }
 class ConnectionsControllerActor extends Actor with Logging {
 
