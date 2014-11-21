@@ -14,20 +14,26 @@ import scalafx.scene.image.Image
 object LocalImage {
   private[model] lazy val redImage = new Image("/images/S_S_LEDR.png")
   private[model] lazy val greenImage = new Image("/images/S_S_LEDG.png")
+  private[model] lazy val yelowImage = new Image("/images/S_S_LEDY.png")
+  private[model] lazy val flowImage = new Image("/images/S_B_RELA.png")
+  private[model] lazy val runImage = new Image("/images/S_B_ACTY.png")
+  private[model] lazy val idleImage = new Image("/images/IMAGE14.png")
 
 }
-class StateTableCell extends TableCell[ModelConnection, String] {
+class StateTableCell[M] extends TableCell[M, String] {
   private val hBox = new HBox
   private val image = new ImageView
   private val tLab = new Label
-  hBox.setAlignment(Pos.CENTER)
+  hBox.setAlignment(Pos.CENTER_LEFT)
   hBox.content.add(image)
   hBox.content.add(tLab)
   delegate.setGraphic(hBox)
   item.onChange { (_, _, newVal) ⇒
-    tLab.text = newVal
+    tLab.text = " " + newVal
     newVal match {
-      case "running" ⇒ image.image = LocalImage.greenImage
+      case "running" ⇒ image.image = LocalImage.runImage
+      case "flow"    ⇒ image.image = LocalImage.flowImage
+      case "idle"    ⇒ image.image = LocalImage.idleImage
       case null | "" ⇒
       case _         ⇒ image.image = LocalImage.redImage
     }
@@ -48,7 +54,7 @@ object ModelConnection {
     new TableColumn[ModelConnection, String] {
       cellValueFactory = { _.value.pstate }
       cellFactory = { c ⇒
-        new StateTableCell
+        new StateTableCell[ModelConnection]
       }
     })
   def tableColumns = {
