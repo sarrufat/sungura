@@ -8,9 +8,7 @@ import grizzled.slf4j.Logger
 import scala.Enumeration
 import scala.concurrent.duration._
 import akka.agent.Agent
-import org.sarrufat.rabbitmq.actor.ConnectionActor
 import grizzled.slf4j.Logging
-import org.sarrufat.rabbitmq.actor.TestProducerActor
 
 object Command extends Enumeration {
   type CommandT = Value
@@ -18,7 +16,7 @@ object Command extends Enumeration {
 }
 object CActors extends Enumeration {
   type CActor = Value
-  val Overview, Connections, Test = Value
+  val Overview, Connections, Test, Exchange = Value
 }
 private[actor] case class PulseRequest(action: Symbol)
 private[actor] case class ControlCommand(action: Command.CommandT, actor: CActors.CActor)
@@ -36,15 +34,19 @@ object MainActor {
   def stopConnections = sender ! ControlCommand(Command.Stop, CActors.Connections)
   def startTest(nm: Int, sm: Int) = sender ! StartTest(nm, sm)
   def stopTest = sender ! ControlCommand(Command.Stop, CActors.Test)
+  def startExchange = sender ! ControlCommand(Command.Start, CActors.Exchange)
+  def stopExchange = sender ! ControlCommand(Command.Stop, CActors.Exchange)
 }
 class MainActor extends Actor with Logging {
 
   lazy val overviewActor = context.actorOf(Props[OverviewActor], "Overview")
   lazy val connectionActor = context.actorOf(Props[ConnectionActor], "Connection")
   lazy val testProdActor = context.actorOf(Props[TestProducerActor], "TestProducer")
+  lazy val exchangeActor = context.actorOf(Props[ExchangeActor], "ExchangeAct")
   import scala.concurrent.ExecutionContext.Implicits.global
   val overviewStatus = Agent(false)
   val connectionsStatus = Agent(false)
+  val exchagneStatus = Agent(false)
 
   def receive = {
     case ControlCommand(Command.Start, ac) ⇒ {
@@ -53,6 +55,7 @@ class MainActor extends Actor with Logging {
         case CActors.Overview    ⇒ overviewStatus send true
         case CActors.Connections ⇒ connectionsStatus send true
         case CActors.Test        ⇒ testProdActor ! true
+        case CActors.Exchange    ⇒ exchagneStatus send true
       }
     }
     case ControlCommand(Command.Stop, ac) ⇒ {
@@ -61,6 +64,7 @@ class MainActor extends Actor with Logging {
         case CActors.Overview    ⇒ overviewStatus send false
         case CActors.Connections ⇒ connectionsStatus send false
         case CActors.Test        ⇒ testProdActor ! false
+        case CActors.Exchange    ⇒ exchagneStatus send false
       }
     }
     case PulseRequest(_) ⇒ {
@@ -68,6 +72,8 @@ class MainActor extends Actor with Logging {
         overviewActor ! PulseRequest('Overview)
       if (connectionsStatus get)
         connectionActor ! PulseRequest('Connections)
+      if (exchagneStatus get)
+        exchangeActor ! PulseRequest('Exchange)
     }
     case st: StartTest ⇒ {
       testProdActor ! st

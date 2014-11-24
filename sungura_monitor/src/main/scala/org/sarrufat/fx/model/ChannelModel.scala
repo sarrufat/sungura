@@ -35,7 +35,7 @@ object ChannelModel {
 class ChannelModel(info: ChannelJsonObject) {
   val pname = new StringProperty(this, "name", info.name)
   val user = new StringProperty(this, "user", info.user)
-  val mode = new StringProperty(this, "mode", bool2String(info.transactional, "T") + " " + bool2String(info.confirm, "C"))
+  val mode = new StringProperty(this, "mode", bool2String(info.transactional, "Transac.") + " " + bool2String(info.confirm, "Confirm"))
   val prefetch = new StringProperty(this, "prefetch", info.prefetch_count.toString)
   val state = new StringProperty(this, "state", stateFromMStat)
   val idleSince = new StringProperty(this, "idleSince", info.idle_since.getOrElse(""))
