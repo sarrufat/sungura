@@ -4,6 +4,7 @@ import org.sarrufat.rabbitmq.json.ChannelJsonObject
 import ChannelModel._
 import scalafx.beans.property.StringProperty
 import scalafx.scene.control.TableColumn
+import org.sarrufat.rabbitmq.json.RateDetails
 
 object ChannelModel {
   private val colnames = List("Name", "User", "Mode", "Prefetch", "State", "Idle Since", "Consumers")
@@ -36,7 +37,27 @@ class ChannelModel(info: ChannelJsonObject) {
   val user = new StringProperty(this, "user", info.user)
   val mode = new StringProperty(this, "mode", bool2String(info.transactional, "T") + " " + bool2String(info.confirm, "C"))
   val prefetch = new StringProperty(this, "prefetch", info.prefetch_count.toString)
-  val state = new StringProperty(this, "state", info.state)
+  val state = new StringProperty(this, "state", stateFromMStat)
   val idleSince = new StringProperty(this, "idleSince", info.idle_since.getOrElse(""))
   val consumer_count = new StringProperty(this, "consumer_count", info.consumer_count.toString)
+
+  private def stateFromMStat = {
+    def stateFromRates = {
+      def checkIdle(rate: Option[RateDetails]): Boolean = {
+        rate match {
+          case Some(r) ⇒ r.rate > 0.0
+          case None    ⇒ false
+        }
+      }
+      val mgsStat = info.message_stats.get
+      if (checkIdle(mgsStat.ack_details) || checkIdle(mgsStat.deliver_details) || checkIdle(mgsStat.deliver_get_details) || checkIdle(mgsStat.publish_details))
+        "running"
+      else
+        "idle"
+    }
+    info.message_stats match {
+      case Some(ms) ⇒ stateFromRates
+      case None     ⇒ "idle"
+    }
+  }
 }
