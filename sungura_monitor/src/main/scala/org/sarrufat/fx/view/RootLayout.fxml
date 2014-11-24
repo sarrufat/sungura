@@ -60,11 +60,6 @@
               </AnchorPane>
             </content>
           </Tab>
-            <Tab fx:id="channelsTab" closable="false" text="Channels">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" />
-              </content>
-            </Tab>
             <Tab fx:id="exchangesTab" closable="false" text="Exchanges">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" />

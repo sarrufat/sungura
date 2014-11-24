@@ -46,6 +46,7 @@ object ConnectionsControllerActor extends Logging {
   }
 
   def setFilterChannel(b: Boolean, filter: String) = filterChanel send (b, filter)
+  def getFilterChannel = filterChanel get
 }
 class ConnectionsControllerActor extends Actor with Logging {
 

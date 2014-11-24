@@ -62,12 +62,19 @@ class ConnectionsController(val connTable: TableView[ModelConnection], val chanT
   chanTable.columns ++= ChannelModel.tableColumns
   chanTable.items = chanOBuf
   def updateModel(model: List[ModelConnection]): Unit = {
+    val filterStatus = ConnectionsControllerActor.getFilterChannel
     obuf.clear
     obuf ++= model
+    if (filterStatus._1) {
+      model.find(_.pame.value == filterStatus._2) match {
+        case Some(m) ⇒ connTable.getSelectionModel.select(m)
+        case None    ⇒ logger.warn("selection not found: " + filterStatus._2)
+      }
+    } else
+      logger.debug("No selection")
   }
   def updateChannModel(model: List[ChannelModel]): Unit = {
     chanOBuf.clear
     chanOBuf ++= model
   }
 }
-
