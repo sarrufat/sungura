@@ -9,7 +9,7 @@ import scala.Enumeration
 import scala.concurrent.duration._
 import akka.agent.Agent
 import grizzled.slf4j.Logging
-import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor }
+import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor, QueueControllerActor }
 import org.sarrufat.rabbitmq.json._
 
 object Command extends Enumeration {
@@ -18,7 +18,7 @@ object Command extends Enumeration {
 }
 object CActors extends Enumeration {
   type CActor = Value
-  val Overview, Connections, Test, Exchange = Value
+  val Overview, Connections, Test, Exchange, Queue = Value
 }
 private[actor] case class PulseRequest(action: Symbol)
 private[actor] case class ControlCommand(action: Command.CommandT, actor: CActors.CActor)
@@ -38,6 +38,8 @@ object MainActor {
   def stopTest = sender ! ControlCommand(Command.Stop, CActors.Test)
   def startExchange = sender ! ControlCommand(Command.Start, CActors.Exchange)
   def stopExchange = sender ! ControlCommand(Command.Stop, CActors.Exchange)
+  def startQueue = sender ! ControlCommand(Command.Start, CActors.Queue)
+  def stopQueue = sender ! ControlCommand(Command.Stop, CActors.Queue)
 }
 class MainActor extends Actor with Logging {
 
@@ -45,13 +47,17 @@ class MainActor extends Actor with Logging {
   lazy val connectionActor = context.actorOf(Props[ConnectionActor], "Connection")
   lazy val testProdActor = context.actorOf(Props[TestProducerActor], "TestProducer")
   lazy val exchangeActor = context.actorOf(Props[ExchangeActor], "ExchangeAct")
+  lazy val queueActor = context.actorOf(Props[QueueActor], "QueueActor")
+
   lazy val ovControllerActor = context.actorOf(Props[OverviewControllerActor], "OverviewControllerActor")
   lazy val connControllerActor = context.actorOf(Props[ConnectionsControllerActor], "ConnectionsControllerActor")
   lazy val exchControllerActor = context.actorOf(Props[ExchangeControllerActor], "ExchangeControllerActor")
+  lazy val queueControlleActor = context.actorOf(Props[QueueControllerActor], "QueueControllerActor")
   import scala.concurrent.ExecutionContext.Implicits.global
   val overviewStatus = Agent(false)
   val connectionsStatus = Agent(false)
   val exchagneStatus = Agent(false)
+  val queueStatus = Agent(false)
 
   def receive = {
     case ControlCommand(Command.Start, ac) ⇒ {
@@ -61,6 +67,7 @@ class MainActor extends Actor with Logging {
         case CActors.Connections ⇒ connectionsStatus send true
         case CActors.Test        ⇒ testProdActor ! true
         case CActors.Exchange    ⇒ exchagneStatus send true
+        case CActors.Queue       ⇒ queueStatus send true
       }
     }
     case ControlCommand(Command.Stop, ac) ⇒ {
@@ -70,6 +77,8 @@ class MainActor extends Actor with Logging {
         case CActors.Connections ⇒ connectionsStatus send false
         case CActors.Test        ⇒ testProdActor ! false
         case CActors.Exchange    ⇒ exchagneStatus send false
+        case CActors.Queue       ⇒ queueStatus send false
+
       }
     }
     case PulseRequest(_) ⇒ {
@@ -79,6 +88,8 @@ class MainActor extends Actor with Logging {
         connectionActor ! PulseRequest('Connections)
       if (exchagneStatus get)
         exchangeActor ! PulseRequest('Exchange)
+      if (queueStatus get)
+        queueActor ! PulseRequest('Queue)
     }
     case st: StartTest ⇒ {
       testProdActor ! st
@@ -87,6 +98,7 @@ class MainActor extends Actor with Logging {
     case conn: ConnectionWrapper ⇒ connControllerActor ! conn
     case chan: ChannelWrapper    ⇒ connControllerActor ! chan
     case exchg: ExchangeWrapper  ⇒ exchControllerActor ! exchg
+    case q: QueueJsonWrapper     ⇒ queueControlleActor ! q
     case _                       ⇒ logger.warn("Unknow message")
   }
 }

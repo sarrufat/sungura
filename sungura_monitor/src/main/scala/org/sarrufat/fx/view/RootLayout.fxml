@@ -71,7 +71,11 @@
 				</Tab>
 				<Tab fx:id="queuesTab" closable="false" text="Queues">
 					<content>
-						<AnchorPane minHeight="0.0" minWidth="0.0" />
+						<AnchorPane>
+							<children>
+								<fx:include source="QueueView.fxml" />
+							</children>
+						</AnchorPane>
 					</content>
 				</Tab>
 			</tabs>
