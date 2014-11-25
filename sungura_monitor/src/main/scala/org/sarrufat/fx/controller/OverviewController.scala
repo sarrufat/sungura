@@ -57,7 +57,7 @@ trait OVController {
 
 object OverviewControllerActor {
   type OVValue = List[OverviewWTS]
-  lazy val sender = ActorSystem().actorOf(Props[OverviewControllerActor])
+  //  lazy val sender = ActorSystem().actorOf(Props[OverviewControllerActor])
   private var vcont: OVController = null
   def controller = vcont
   def controller_=(c: OVController) = { vcont = c }

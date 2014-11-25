@@ -20,7 +20,7 @@ trait ConnControlerModelUpdater {
   def updateChannModel(model: List[ChannelModel]): Unit
 }
 object ConnectionsControllerActor extends Logging {
-  lazy val sender = ActorSystem().actorOf(Props[ConnectionsControllerActor])
+  //  lazy val sender = ActorSystem().actorOf(Props[ConnectionsControllerActor])
   import scala.concurrent.ExecutionContext.Implicits.global
   private val modelAgent = Agent(List[ModelConnection]())
   private val chanModelAgent = Agent(List[ChannelModel]())

@@ -13,7 +13,7 @@ import scala.util.Success
 import scala.util.Failure
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.sarrufat.fx.controller.ConnectionsControllerActor
+
 import org.sarrufat.rabbitmq.json.ChannelWrapper
 
 object ConnectionActor extends Logging {
@@ -42,7 +42,7 @@ object ConnectionActor extends Logging {
     Await.ready(retProm.future, 60 seconds)
     val ret = retProm.future.value.get
     logger.debug("Recibido: " + ret.get)
-    ConnectionsControllerActor.sender ! ConnectionWrapper(ret.get)
+    ConnectionWrapper(ret.get)
   }
 
   private def sendChannelREST = {
@@ -61,7 +61,7 @@ object ConnectionActor extends Logging {
     Await.ready(retProm.future, 60 seconds)
     val ret = retProm.future.value.get
     logger.debug("Recibido: " + ret.get)
-    ConnectionsControllerActor.sender ! ChannelWrapper(ret.get)
+    ChannelWrapper(ret.get)
   }
 
 }
@@ -69,8 +69,8 @@ object ConnectionActor extends Logging {
 class ConnectionActor extends Actor {
   def receive = {
     case PulseRequest('Connections) ⇒ {
-      ConnectionActor.sendREST
-      ConnectionActor.sendChannelREST
+      context.parent ! ConnectionActor.sendREST
+      context.parent ! ConnectionActor.sendChannelREST
     }
   }
 }

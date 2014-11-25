@@ -41,12 +41,11 @@ object ExchangeActor extends Logging {
     Await.ready(retProm.future, 60 seconds)
     val ret = retProm.future.value.get
     logger.debug("Recibido: " + ret.get)
-    ExchangeControllerActor.sender ! ExchangeWrapper(ret.get)
-    //    ConnectionsControllerActor.sender ! ConnectionWrapper(ret.get)
+    ExchangeWrapper(ret.get)
   }
 }
 class ExchangeActor extends Actor {
   def receive = {
-    case PulseRequest(x) ⇒ ExchangeActor sendREST
+    case PulseRequest(x) ⇒ context.parent ! ExchangeActor.sendREST
   }
 }

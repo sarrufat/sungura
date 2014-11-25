@@ -4,14 +4,12 @@ import scala.concurrent.{ Await, Promise }
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.util.{ Failure, Success }
 import org.sarrufat.fx.MainUIFX
-import org.sarrufat.fx.controller.OverviewControllerActor
 import org.sarrufat.rabbitmq.json.{ Overview, OverviewWTS }
 import akka.actor.{ Actor, ActorLogging, ActorSystem, Props, actorRef2Scala }
 import grizzled.slf4j.Logger
 import spray.client.pipelining.{ Get, WithTransformation, WithTransformerConcatenation, addCredentials, sendReceive, sendReceive$default$3, unmarshal }
 import spray.http.BasicHttpCredentials
 import spray.httpx.SprayJsonSupport._
-import org.sarrufat.rabbitmq.actor.PulseRequest
 import grizzled.slf4j.Logging
 
 case class Error(msg: String) extends Exception(msg)
@@ -47,7 +45,7 @@ object OverviewActor extends Logging {
     Await.ready(retProm.future, 60 seconds)
     val ret = retProm.future.value.get
     logger.debug("Recibido: " + ret.get)
-    OverviewControllerActor.sender ! OverviewWTS(ret.get)
+    OverviewWTS(ret.get)
   }
 }
 
@@ -55,7 +53,7 @@ class MakeRequest
 class OverviewActor extends Actor with ActorLogging {
 
   def receive = {
-    case PulseRequest('Overview) ⇒ OverviewActor.sendREST
+    case PulseRequest('Overview) ⇒ context.parent ! OverviewActor.sendREST
   }
 
 }

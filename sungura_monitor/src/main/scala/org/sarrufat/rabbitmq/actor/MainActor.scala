@@ -9,6 +9,8 @@ import scala.Enumeration
 import scala.concurrent.duration._
 import akka.agent.Agent
 import grizzled.slf4j.Logging
+import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor }
+import org.sarrufat.rabbitmq.json._
 
 object Command extends Enumeration {
   type CommandT = Value
@@ -43,6 +45,9 @@ class MainActor extends Actor with Logging {
   lazy val connectionActor = context.actorOf(Props[ConnectionActor], "Connection")
   lazy val testProdActor = context.actorOf(Props[TestProducerActor], "TestProducer")
   lazy val exchangeActor = context.actorOf(Props[ExchangeActor], "ExchangeAct")
+  lazy val ovControllerActor = context.actorOf(Props[OverviewControllerActor], "OverviewControllerActor")
+  lazy val connControllerActor = context.actorOf(Props[ConnectionsControllerActor], "ConnectionsControllerActor")
+  lazy val exchControllerActor = context.actorOf(Props[ExchangeControllerActor], "ExchangeControllerActor")
   import scala.concurrent.ExecutionContext.Implicits.global
   val overviewStatus = Agent(false)
   val connectionsStatus = Agent(false)
@@ -78,6 +83,10 @@ class MainActor extends Actor with Logging {
     case st: StartTest ⇒ {
       testProdActor ! st
     }
-    case _ ⇒ logger.warn("Unknow message")
+    case ov: OverviewWTS         ⇒ ovControllerActor ! ov
+    case conn: ConnectionWrapper ⇒ connControllerActor ! conn
+    case chan: ChannelWrapper    ⇒ connControllerActor ! chan
+    case exchg: ExchangeWrapper  ⇒ exchControllerActor ! exchg
+    case _                       ⇒ logger.warn("Unknow message")
   }
 }

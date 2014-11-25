@@ -43,7 +43,7 @@ object ExchangeControllerStore {
 }
 
 object ExchangeControllerActor extends Logging {
-  lazy val sender = ActorSystem().actorOf(Props[ExchangeControllerActor])
+  //  lazy val sender = ActorSystem().actorOf(Props[ExchangeControllerActor])
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private[controller] val modelAgent = Agent(List[ExchangeModel]())
