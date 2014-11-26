@@ -20,20 +20,34 @@
 							</image>
 						</ImageView>
 						<Separator orientation="VERTICAL" />
-						<MenuBar>
-							<menus>
-								<Menu mnemonicParsing="false" text="Setup">
-									<items>
-										<MenuItem mnemonicParsing="false" text="Connection" />
-									</items>
-								</Menu>
-								<Menu mnemonicParsing="false" text="Test">
-									<items>
-										<MenuItem mnemonicParsing="false" onAction="#openTest" text="New Test" />
-									</items>
-								</Menu>
-							</menus>
-						</MenuBar>
+                  <HBox>
+                     <children>
+                        <Button mnemonicParsing="false">
+                           <graphic>
+                              <ImageView pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@/images/machine2.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <tooltip>
+                              <Tooltip text="Setup" />
+                           </tooltip>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#openTest">
+                           <graphic>
+                              <ImageView pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@/images/testtube.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <tooltip>
+                              <Tooltip text="Laucnh a test" />
+                           </tooltip>
+                        </Button>
+                     </children>
+                  </HBox>
 					</items>
 				</ToolBar>
 			</children>

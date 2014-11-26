@@ -11,7 +11,12 @@ object QueueModel {
     new TableColumn[QueueModel, String] { cellValueFactory = { _.value.name } },
     new TableColumn[QueueModel, String] { cellValueFactory = { _.value.exclusive } },
     new TableColumn[QueueModel, String] { cellValueFactory = { _.value.parameters } },
-    new TableColumn[QueueModel, String] { cellValueFactory = { _.value.state } },
+    new TableColumn[QueueModel, String] {
+      cellValueFactory = { _.value.state }
+      cellFactory = { c ⇒
+        new StateTableCell[QueueModel]
+      }
+    },
     new TableColumn[QueueModel, String] { cellValueFactory = { _.value.ready } },
     new TableColumn[QueueModel, String] { cellValueFactory = { _.value.unacked } },
     new TableColumn[QueueModel, String] { cellValueFactory = { _.value.total } },
@@ -28,7 +33,7 @@ class QueueModel(info: QueueJsonObject) {
   val name = new StringProperty(this, "name", info.name)
   val exclusive = new StringProperty(this, "exclusive", getExclusive)
   val parameters = new StringProperty(this, "parameters", getParameters)
-  val state = new StringProperty(this, "state", "")
+  val state = new StringProperty(this, "state", getState)
   val ready = new StringProperty(this, "ready", info.messages_ready.toString)
   val unacked = new StringProperty(this, "unacked", info.messages_unacknowledged.toString)
   val total = new StringProperty(this, "total", info.messages.toString)
@@ -63,6 +68,12 @@ class QueueModel(info: QueueJsonObject) {
       case None    ⇒ ""
     }
   }
+  private def getRateD(rate: Option[Details]) = {
+    rate match {
+      case Some(r) ⇒ r.rate
+      case None    ⇒ 0.0
+    }
+  }
   private def getIncoming = {
     info.message_stats match {
       case Some(st) ⇒ getRate(st.publish_details)
@@ -79,6 +90,17 @@ class QueueModel(info: QueueJsonObject) {
     info.message_stats match {
       case Some(st) ⇒ getRate(st.ack_details)
       case None     ⇒ ""
+    }
+  }
+  private def getState = {
+    info.message_stats match {
+      case Some(st) ⇒ {
+        if (getRateD(st.publish_details) > 0.0 || getRateD(st.deliver_get_details) > 0.0 || getRateD(st.ack_details) > 0.0)
+          "running"
+        else
+          "idle"
+      }
+      case None ⇒ "idle"
     }
   }
 }

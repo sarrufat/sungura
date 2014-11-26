@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -11,7 +12,14 @@
 	<bottom>
 		<HBox BorderPane.alignment="CENTER">
 			<children>
-				<Button mnemonicParsing="false" onAction="#startStopTest" text="Start" />
+				<Button mnemonicParsing="false" onAction="#startStopTest" text="Start">
+               <graphic>
+                  <ImageView pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@/images/start.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
 			</children>
 		</HBox>
 	</bottom>

@@ -10,14 +10,20 @@ import scalafx.scene.image.ImageView
 import scalafx.scene.control.Label
 import javafx.geometry.Pos
 import scalafx.scene.image.Image
+import scalafx.scene.paint.Color
+import scalafx.scene.effect.ColorInput
+import scalafx.scene.effect.ColorInput
+import scalafx.scene.effect.ColorInput
+import scalafx.scene.effect.Blend
+import scalafx.scene.effect.Blend
+import scalafx.scene.effect.BlendMode
+import scalafx.scene.effect.ImageInput
 
 object LocalImage {
   private[model] lazy val redImage = new Image("/images/S_S_LEDR.png")
-  private[model] lazy val greenImage = new Image("/images/S_S_LEDG.png")
-  private[model] lazy val yelowImage = new Image("/images/S_S_LEDY.png")
-  private[model] lazy val flowImage = new Image("/images/S_B_RELA.png")
-  private[model] lazy val runImage = new Image("/images/S_B_ACTY.png")
-  private[model] lazy val idleImage = new Image("/images/IMAGE14.png")
+  private[model] lazy val flowImage = new Image("/images/electricity.png")
+  private[model] lazy val runImage = new Image("/images/businessman125.png")
+  private[model] lazy val idleImage = new Image("/images/person58.png")
 
 }
 class StateTableCell[M] extends TableCell[M, String] {
@@ -28,15 +34,34 @@ class StateTableCell[M] extends TableCell[M, String] {
   hBox.content.add(image)
   hBox.content.add(tLab)
   delegate.setGraphic(hBox)
+  private def imageColor(col: Color) = {
+    val blend = new Blend
+    blend.mode = BlendMode.OVERLAY
+    val ci = new ColorInput(0, 0, 24, 24, col)
+    blend.bottomInput = ci
+    image.effect = blend
+  }
   item.onChange { (_, _, newVal) ⇒
     tLab.text = " " + newVal
     newVal match {
-      case "running" ⇒ image.image = LocalImage.runImage
-      case "flow"    ⇒ image.image = LocalImage.flowImage
-      case "idle"    ⇒ image.image = LocalImage.idleImage
+      case "running" ⇒ {
+        image.image = LocalImage.runImage;
+        tLab.textFill = Color.OLIVEDRAB
+        imageColor(Color.OLIVEDRAB)
+      }
+      case "flow" ⇒ {
+        image.image = LocalImage.flowImage
+        tLab.textFill = Color.HOTPINK
+        imageColor(Color.HOTPINK)
+      }
+      case "idle" ⇒ {
+        image.image = LocalImage.idleImage
+        tLab.textFill = Color.CADETBLUE
+        imageColor(Color.CADETBLUE)
+      }
       case null | "" ⇒
         tLab.text = ""; image.image = null
-      case _         ⇒ image.image = LocalImage.redImage
+      case _ ⇒ image.image = LocalImage.redImage
     }
   }
 
