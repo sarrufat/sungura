@@ -30,7 +30,7 @@ object ExchangeActor extends Logging {
     val pipeline = sendReceive ~> unmarshal[Seq[ExchangeJsonObject]]
 
     lazy val responseFuture = pipeline {
-      Get("http://" + MainUIFX.HOST + ":15672/api/exchanges") ~> addCredentials(credentials)
+      Get("http://" + MainActor.hostName + ":15672/api/exchanges") ~> addCredentials(credentials)
     }
     lazy val retProm = Promise[Seq[ExchangeJsonObject]]()
     responseFuture onComplete {

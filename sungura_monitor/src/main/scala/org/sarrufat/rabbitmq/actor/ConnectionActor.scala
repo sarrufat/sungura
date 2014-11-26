@@ -31,7 +31,7 @@ object ConnectionActor extends Logging {
     val pipeline = sendReceive ~> unmarshal[Seq[ConnectionsJSON]]
 
     lazy val responseFuture = pipeline {
-      Get("http://" + MainUIFX.HOST + ":15672/api/connections") ~> addCredentials(credentials)
+      Get("http://" + MainActor.hostName + ":15672/api/connections") ~> addCredentials(credentials)
     }
     lazy val retProm = Promise[Seq[ConnectionsJSON]]()
     responseFuture onComplete {
@@ -50,7 +50,7 @@ object ConnectionActor extends Logging {
     val pipeline2 = sendReceive ~> unmarshal[Seq[ChannelJsonObject]]
 
     lazy val responseFuture = pipeline2 {
-      Get("http://" + MainUIFX.HOST + ":15672/api/channels") ~> addCredentials(credentials)
+      Get("http://" + MainActor.hostName + ":15672/api/channels") ~> addCredentials(credentials)
     }
     lazy val retProm = Promise[Seq[ChannelJsonObject]]()
     responseFuture onComplete {

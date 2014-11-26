@@ -17,7 +17,7 @@ object TestConsumerActor {
   def createConsumer = {
     // create an AMQP connection
     lazy val connFactory = new ConnectionFactory
-    connFactory.setUri("amqp://" + MainUIFX.USER + ":" + MainUIFX.PASSWORD + "@" + MainUIFX.HOST + "/%2F")
+    connFactory.setUri("amqp://" + MainUIFX.USER + ":" + MainUIFX.PASSWORD + "@" + MainActor.hostName + "/%2F")
     lazy val conn = system.actorOf(ConnectionOwner.props(connFactory, 5 second))
     lazy val producer = ConnectionOwner.createChildActor(conn, ChannelOwner.props())
     val listener = system.actorOf(Props[TestConsumerActor])

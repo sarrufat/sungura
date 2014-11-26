@@ -1,41 +1,22 @@
 package org.sarrufat.fx.controller
 
-import org.sarrufat.rabbitmq.json._
-import scalafxml.core.macros.sfxml
-import scalafx.scene.chart.LineChart
-import scalafx.scene.chart.XYChart
-import scalafx.concurrent.Task
+import scala.util.{ Failure, Success, Try }
+import org.sarrufat.rabbitmq.actor.MainActor
+import org.sarrufat.rabbitmq.json.{ OverviewWTS, Overview, _ }
 import akka.actor.Actor
-import akka.actor.Props
-import akka.actor.ActorSystem
-import grizzled.slf4j.Logger
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-import scalafx.application.Platform
-import org.sarrufat.rabbitmq.json.Overview
 import akka.agent.Agent
-import org.sarrufat.rabbitmq.json.OverviewWTS
+import grizzled.slf4j.{ Logger, Logging }
+import javafx.{ event ⇒ jfxe, scene ⇒ jfxs, stage ⇒ jfxst }
+import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.collections.ObservableBuffer
-import scalafx.collections.ObservableBuffer
-import scalafx.scene.layout.AnchorPane
-import scalafx.scene.control.Button
+import scalafx.concurrent.Task
 import scalafx.event.{ ActionEvent, EventIncludes ⇒ sfxei }
-import scalafxml.core.FXMLView
-import scalafxml.core.NoDependencyResolver
-import scalafx.stage.Stage
-import scalafx.stage.Modality
 import scalafx.scene.Scene
-import javafx.{ scene ⇒ jfxs }
-import javafx.{ event ⇒ jfxe }
-import javafx.{ stage ⇒ jfxst }
-import javafx.beans.{ property ⇒ jfxb }
-import org.sarrufat.rabbitmq.actor.MainActor
-import org.sarrufat.rabbitmq.actor.MainActor
-import org.sarrufat.rabbitmq.actor.MainActor
-import org.sarrufat.rabbitmq.actor.MainActor
-import grizzled.slf4j.Logging
+import scalafx.scene.chart.{ LineChart, XYChart }
+import scalafx.stage.{ Modality, Stage }
+import scalafxml.core.{ FXMLView, NoDependencyResolver }
+import scalafxml.core.macros.sfxml
+import org.sarrufat.rabbitmq.actor.ResetModel
 
 class OverviewTask extends Logging {
 
@@ -72,12 +53,18 @@ object OverviewControllerActor {
     ovAgent send (newl)
   }
   def getAgent = ovAgent.get
+  private def resetModel = ovAgent send List[OverviewWTS]()
 }
 
 class OverviewControllerActor extends Actor {
   def receive = {
     case ov: OverviewWTS ⇒ {
       OverviewControllerActor.updateAgent(ov)
+      val task = new OverviewTask
+      task.run
+    }
+    case ResetModel ⇒ {
+      OverviewControllerActor.resetModel
       val task = new OverviewTask
       task.run
     }

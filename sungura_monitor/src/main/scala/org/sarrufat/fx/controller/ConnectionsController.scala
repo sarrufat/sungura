@@ -1,20 +1,17 @@
 package org.sarrufat.fx.controller
 
 import scala.util._
+
+import org.sarrufat.fx.model.{ ChannelModel, ModelConnection }
 import org.sarrufat.rabbitmq.actor.MainActor
-import scalafxml.core.macros.sfxml
-import scalafx.scene.control.TableView
-import org.sarrufat.fx.model.{ ModelConnection, ChannelModel }
-import scalafx.collections.ObservableBuffer
+
 import grizzled.slf4j.Logging
-import scalafx.concurrent.Task
+import javafx.beans.value.{ ChangeListener, ObservableValue }
 import scalafx.application.Platform
-import javafx.scene.control.TreeTableView
-import scalafx.scene.layout.AnchorPane
-import javafx.scene.control.TreeTableView
-import org.sarrufat.fx.model.ChannelModel
-import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableValue
+import scalafx.collections.ObservableBuffer
+import scalafx.concurrent.Task
+import scalafx.scene.control.TableView
+import scalafxml.core.macros.sfxml
 
 class ConnectionsUpdaterTask extends Logging {
   private val sjxTask = Task[Unit] {

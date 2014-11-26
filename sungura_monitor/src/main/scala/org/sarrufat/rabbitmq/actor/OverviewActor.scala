@@ -34,7 +34,7 @@ object OverviewActor extends Logging {
 
   private def sendREST = {
     lazy val responseFuture = pipeline {
-      Get("http://" + MainUIFX.HOST + ":15672/api/overview") ~> addCredentials(credentials)
+      Get("http://" + MainActor.hostName + ":15672/api/overview") ~> addCredentials(credentials)
     }
     lazy val retProm = Promise[Overview]()
     responseFuture onComplete {

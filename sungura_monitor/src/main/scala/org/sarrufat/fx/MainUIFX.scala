@@ -24,7 +24,7 @@ object MainUIFX extends JFXApp {
   val rootLayout = FXMLView(getClass.getResource("/org/sarrufat/fx/view/RootLayout.fxml"), NoDependencyResolver)
 
   stage = new JFXApp.PrimaryStage {
-    title = "RabbitMQ Monitor"
+    title = "RabbitMQ Monitor (" + HOST + ")"
     scene = new Scene(rootLayout)
   }
   stage.setMaximized(true)
@@ -33,4 +33,5 @@ object MainUIFX extends JFXApp {
     System.exit(0)
   }
   MainActor.startPoll
+  def title(tit: String) = { stage.title = "RabbitMQ Monitor (" + tit + ")" }
 }

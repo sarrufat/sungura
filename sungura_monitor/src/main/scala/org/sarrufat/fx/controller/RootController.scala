@@ -54,7 +54,14 @@ class RootController extends Logging {
     stage.show
 
   }
-  private def actionById(id: String) {
+  def openSetup(ev: Event) = {
+    val testView = FXMLView(getClass.getResource("/org/sarrufat/fx/view/SetupView.fxml"), NoDependencyResolver)
+    val stage = new Stage
+    stage.setTitle("Setup")
+    stage.initModality(Modality.APPLICATION_MODAL)
+    val scene = new Scene(new jfxs.Scene(testView))
+    stage.setScene(scene)
 
+    stage.show
   }
 }

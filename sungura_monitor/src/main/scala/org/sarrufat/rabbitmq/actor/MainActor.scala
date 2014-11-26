@@ -11,6 +11,7 @@ import akka.agent.Agent
 import grizzled.slf4j.Logging
 import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor, QueueControllerActor }
 import org.sarrufat.rabbitmq.json._
+import org.sarrufat.fx.MainUIFX
 
 object Command extends Enumeration {
   type CommandT = Value
@@ -22,6 +23,7 @@ object CActors extends Enumeration {
 }
 private[actor] case class PulseRequest(action: Symbol)
 private[actor] case class ControlCommand(action: Command.CommandT, actor: CActors.CActor)
+case object ResetModel
 
 object MainActor {
   implicit val system = ActorSystem.create
@@ -40,6 +42,25 @@ object MainActor {
   def stopExchange = sender ! ControlCommand(Command.Stop, CActors.Exchange)
   def startQueue = sender ! ControlCommand(Command.Start, CActors.Queue)
   def stopQueue = sender ! ControlCommand(Command.Stop, CActors.Queue)
+  def stopAll = {
+    stopOverview
+    stopConnections
+    stopExchange
+    stopQueue
+  }
+  def startAll = {
+    startOverview
+    startConnections
+    startExchange
+    startQueue
+  }
+  private val hostNameAg = Agent(MainUIFX.HOST)
+  def hostName: String = hostNameAg get
+  def hostName_=(h: String) = {
+    hostNameAg send h
+    MainUIFX.title(h)
+    sender ! ResetModel
+  }
 }
 class MainActor extends Actor with Logging {
 
@@ -99,6 +120,12 @@ class MainActor extends Actor with Logging {
     case chan: ChannelWrapper    ⇒ connControllerActor ! chan
     case exchg: ExchangeWrapper  ⇒ exchControllerActor ! exchg
     case q: QueueJsonWrapper     ⇒ queueControlleActor ! q
-    case _                       ⇒ logger.warn("Unknow message")
+    case ResetModel ⇒ {
+      ovControllerActor ! ResetModel
+      connControllerActor ! ResetModel
+      exchControllerActor ! ResetModel
+      queueControlleActor ! ResetModel
+    }
+    case _ ⇒ logger.warn("Unknow message")
   }
 }

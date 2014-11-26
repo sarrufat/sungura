@@ -1,19 +1,12 @@
 package org.sarrufat.fx.controller
 
-import org.sarrufat.fx.model.ModelConnection
+import scala.concurrent.ExecutionContext.Implicits.global
+import org.sarrufat.fx.model.{ ChannelModel, ModelConnection }
+import org.sarrufat.rabbitmq.json.{ ChannelWrapper, ConnectionWrapper }
 import akka.actor.Actor
-import org.sarrufat.rabbitmq.json.ConnectionsJSON
-import org.sarrufat.rabbitmq.json.ChannelJsonObject
-import grizzled.slf4j.Logging
-import akka.actor.ActorSystem
-import akka.actor.Props
 import akka.agent.Agent
-import org.sarrufat.rabbitmq.json.ConnectionWrapper
-import org.sarrufat.rabbitmq.json.ChannelWrapper
-import org.sarrufat.rabbitmq.json.ConnectionWrapper
-import org.sarrufat.rabbitmq.json.ChannelWrapper
-import org.sarrufat.fx.model.ChannelModel
-import org.sarrufat.fx.model.ChannelModel
+import grizzled.slf4j.Logging
+import org.sarrufat.rabbitmq.actor.ResetModel
 
 trait ConnControlerModelUpdater {
   def updateModel(model: List[ModelConnection]): Unit
@@ -47,6 +40,13 @@ object ConnectionsControllerActor extends Logging {
 
   def setFilterChannel(b: Boolean, filter: String) = filterChanel send (b, filter)
   def getFilterChannel = filterChanel get
+
+  private def resetModel = {
+    modelAgent send List[ModelConnection]()
+    chanModelAgent send List[ChannelModel]()
+    new ConnectionsUpdaterTask().run
+    new ChannelUpdaterTask().run
+  }
 }
 class ConnectionsControllerActor extends Actor with Logging {
 
@@ -54,5 +54,6 @@ class ConnectionsControllerActor extends Actor with Logging {
     case Seq()                  ⇒
     case msg: ConnectionWrapper ⇒ ConnectionsControllerActor updateModel (msg)
     case msg: ChannelWrapper    ⇒ ConnectionsControllerActor updateChannelModel (msg)
+    case ResetModel             ⇒ ConnectionsControllerActor resetModel
   }
 }

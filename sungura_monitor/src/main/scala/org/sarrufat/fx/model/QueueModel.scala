@@ -26,6 +26,7 @@ object QueueModel {
 
   def tableColumns = {
     colnames zip _tableColumns foreach (tup ⇒ tup._2.text = tup._1)
+    _tableColumns foreach (_.sortable = false)
     _tableColumns.map(tc ⇒ tc.delegate)
   }
 }

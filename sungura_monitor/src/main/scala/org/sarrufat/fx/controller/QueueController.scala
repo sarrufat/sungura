@@ -1,20 +1,17 @@
 package org.sarrufat.fx.controller
 
-import scalafx.scene.control.TableView
+import scala.util.{ Failure, Success, Try }
 import org.sarrufat.fx.model.QueueModel
 import org.sarrufat.rabbitmq.actor.MainActor
 import org.sarrufat.rabbitmq.json.QueueJsonWrapper
-import scalafxml.core.macros.sfxml
-import org.sarrufat.fx.model.QueueModel
+import akka.actor.Actor
+import grizzled.slf4j.Logging
+import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.concurrent.Task
-import akka.actor.Actor
-import akka.agent.Agent
-import scalafx.application.Platform
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-import grizzled.slf4j.Logging
+import scalafx.scene.control.TableView
+import scalafxml.core.macros.sfxml
+import org.sarrufat.rabbitmq.actor.ResetModel
 
 class QueueControllerActor extends Actor {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,6 +20,7 @@ class QueueControllerActor extends Actor {
       val newModel = qw.seq.map(info ⇒ new QueueModel(info)).toList
       QueueControllerStore.controller.updateModel(newModel)
     }
+    case ResetModel ⇒ QueueControllerStore.controller.updateModel(List[QueueModel]())
   }
 }
 trait QueueUpdater {

@@ -24,7 +24,7 @@ object QueueActor extends Logging {
     val pipeline = sendReceive ~> unmarshal[Seq[QueueJsonObject]]
 
     lazy val responseFuture = pipeline {
-      Get("http://" + MainUIFX.HOST + ":15672/api/queues") ~> addCredentials(credentials)
+      Get("http://" + MainActor.hostName + ":15672/api/queues") ~> addCredentials(credentials)
     }
 
     lazy val retProm = Promise[Seq[QueueJsonObject]]()

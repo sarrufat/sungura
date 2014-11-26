@@ -1,27 +1,18 @@
 package org.sarrufat.fx.controller
 
-import grizzled.slf4j.Logging
-import scalafx.scene.control.TableView
+import scala.util.{ Failure, Success, Try }
 import org.sarrufat.fx.model.ExchangeModel
-import scalafxml.core.macros.sfxml
-import akka.agent.Agent
-import scalafx.collections.ObservableBuffer
-import grizzled.slf4j.Logging
-import org.sarrufat.rabbitmq.json.ExchangeWrapper
-import scalafx.concurrent.Task
-import scalafx.application.Platform
-import scala.util.Success
-import scala.util.Failure
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-import org.sarrufat.rabbitmq.json.ExchangeWrapper
-import org.sarrufat.fx.model.ExchangeModel
-import grizzled.slf4j.Logging
-import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
 import org.sarrufat.rabbitmq.actor.MainActor
+import org.sarrufat.rabbitmq.json.ExchangeWrapper
+import akka.actor.Actor
+import akka.agent.Agent
+import grizzled.slf4j.Logging
+import scalafx.application.Platform
+import scalafx.collections.ObservableBuffer
+import scalafx.concurrent.Task
+import scalafx.scene.control.TableView
+import scalafxml.core.macros.sfxml
+import org.sarrufat.rabbitmq.actor.ResetModel
 
 class ExchangeUpdaterTask extends Logging {
   private val sjxTask = Task[Unit] {
@@ -53,12 +44,16 @@ object ExchangeControllerActor extends Logging {
     modelAgent send newModel.toList
     new ExchangeUpdaterTask().run
   }
-
+  private def resetModel = {
+    modelAgent send List[ExchangeModel]()
+    new ExchangeUpdaterTask().run
+  }
 }
 
 class ExchangeControllerActor extends Actor with Logging {
   def receive = {
     case msg: ExchangeWrapper ⇒ ExchangeControllerActor updateModel (msg)
+    case ResetModel           ⇒ ExchangeControllerActor resetModel
   }
 }
 @sfxml
