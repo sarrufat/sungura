@@ -42,7 +42,7 @@ case class QueueJsonObject(
   exclusive_consumer_tag: String,
   consumers: Int,
   //  backing_queue_status: BackingQueueStatus,
-  state: String,
+  //  state: String,
   name: String,
   vhost: String,
   durable: Boolean,
@@ -55,7 +55,7 @@ object QueueJsonProto extends DefaultJsonProtocol {
   implicit val messagesStatFormat = jsonFormat14(MessagesStats)
   implicit val ownerPidDetailsFormat = jsonFormat3(OwnerPidDetails)
   implicit val messagesDetailsFormat = jsonFormat1(MessagesDetails)
-  implicit val queueJsonFormat = jsonFormat19(QueueJsonObject)
+  implicit val queueJsonFormat = jsonFormat18(QueueJsonObject)
 }
 
 case class QueueJsonWrapper(seq: Seq[QueueJsonObject])

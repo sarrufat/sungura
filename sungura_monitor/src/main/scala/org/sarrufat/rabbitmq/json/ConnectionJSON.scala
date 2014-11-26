@@ -47,7 +47,7 @@ case class ConnectionsJSON(
   vhost: String,
   timeout: Int,
   frame_max: Int,
-  channel_max: Int,
+  // channel_max: Int,
   client_properties: Client_properties)
 
 case class ConnectionWrapper(seq: Seq[ConnectionsJSON])
@@ -55,5 +55,5 @@ object ConnectionsJSONProto extends DefaultJsonProtocol {
   implicit val recv_oct_detailsFormat = jsonFormat1(Recv_oct_details)
   implicit val capabilitiesFormat = jsonFormat3(Capabilities)
   implicit val clientPropertiesFormat = jsonFormat6(Client_properties)
-  implicit val connectionsJSONFormat = jsonFormat17(ConnectionsJSON)
+  implicit val connectionsJSONFormat = jsonFormat16(ConnectionsJSON)
 }

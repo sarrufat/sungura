@@ -32,8 +32,8 @@ case class ChannelJsonObject(
   messages_uncommitted: Int,
   acks_uncommitted: Int,
   prefetch_count: Int,
-  global_prefetch_count: Int,
-  state: String,
+  // global_prefetch_count: Int,
+  // state: String,
   node: String,
   name: String,
   number: Int,
@@ -45,5 +45,5 @@ object ChannelJSONProto extends DefaultJsonProtocol {
   implicit val connection_detailsFormat = jsonFormat3(Connection_details)
   implicit val rateDetailsFormat = jsonFormat1(RateDetails)
   implicit val messageStatsFormat = jsonFormat8(Message_stats)
-  implicit val channelFormat = jsonFormat18(ChannelJsonObject)
+  implicit val channelFormat = jsonFormat16(ChannelJsonObject)
 }
