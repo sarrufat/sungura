@@ -17,7 +17,12 @@ import java.lang.System
 object MainUIFX extends JFXApp {
   lazy val logger = Logger[this.type]
   val applConf = ConfigFactory.load()
-  lazy val HOST = applConf.getString("monitor.host")
+  lazy val HOST = {
+    if (parameters.named.contains("host"))
+      parameters.named("host")
+    else
+      applConf.getString("monitor.host")
+  }
   lazy val USER = applConf.getString("monitor.user")
   lazy val PASSWORD = applConf.getString("monitor.password")
 

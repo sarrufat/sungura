@@ -9,9 +9,10 @@ import scala.Enumeration
 import scala.concurrent.duration._
 import akka.agent.Agent
 import grizzled.slf4j.Logging
-import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor, QueueControllerActor }
+import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor, QueueControllerActor, RootControllerActor, UpdatableRoot }
 import org.sarrufat.rabbitmq.json._
 import org.sarrufat.fx.MainUIFX
+import org.sarrufat.fx.model.AlarmModel
 import scala.util.Failure
 
 object Command extends Enumeration {
@@ -71,6 +72,7 @@ class MainActor extends Actor with Logging {
   lazy val exchangeActor = context.actorOf(Props[ExchangeActor], "ExchangeAct")
   lazy val queueActor = context.actorOf(Props[QueueActor], "QueueActor")
 
+  lazy val rootControllerActor = context.actorOf(Props[RootControllerActor], "RootControllerActor")
   lazy val ovControllerActor = context.actorOf(Props[OverviewControllerActor], "OverviewControllerActor")
   lazy val connControllerActor = context.actorOf(Props[ConnectionsControllerActor], "ConnectionsControllerActor")
   lazy val exchControllerActor = context.actorOf(Props[ExchangeControllerActor], "ExchangeControllerActor")
@@ -128,7 +130,10 @@ class MainActor extends Actor with Logging {
       exchControllerActor ! ResetModel
       queueControlleActor ! ResetModel
     }
-    case Failure(f) ⇒ logger.error(f)
-    case _          ⇒ logger.warn("Unknow message")
+    case Failure(f) ⇒ {
+      rootControllerActor ! new AlarmModel(f)
+    }
+    case upd: UpdatableRoot ⇒ rootControllerActor ! upd
+    case _                  ⇒ logger.warn("Unknow message")
   }
 }

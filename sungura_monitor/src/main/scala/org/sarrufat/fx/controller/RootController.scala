@@ -17,27 +17,65 @@ import scalafxml.core.NoDependencyResolver
 import scalafx.stage.Stage
 import scalafx.stage.Modality
 import scalafx.scene.Scene
+import scalafx.scene.web.WebView
+import akka.actor.Actor
+import org.sarrufat.fx.model.AlarmModel
+import org.sarrufat.rabbitmq.actor.MainActor
+import akka.agent.Agent
+import scalafx.scene.web.WebEngine
+import scalafx.concurrent.Task
+import scalafx.application.Platform
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
+import scala.util.Try
 
-//class RootController(private val msgRatesChart: LineChart[String, Int]) {
+class RootControllerActor extends Actor with Logging {
+  import scala.concurrent.ExecutionContext.Implicits.global
+  private val modelAg = Agent(List[AlarmModel]())
+  private val updatableRootAg = Agent(UpdatableRoot())
+  def receive = {
+    case al: AlarmModel ⇒ {
+      logger.debug("receive AlarmModel")
+      val fut = modelAg alter (modelAg() :+ al)
+      fut.onSuccess {
+        case s ⇒ Try(updatableRootAg().update(s)) match {
+          case Failure(f) ⇒ logger.error(f)
+          case Success(s) ⇒
+        }
+      }
+    }
+    case u: UpdatableRoot ⇒ updatableRootAg.send(u)
+  }
+}
+
+object UpdatableRoot {
+  def apply(): UpdatableRoot = null
+}
+trait UpdatableRoot extends Logging {
+  def engine: WebEngine
+  def update(mod: List[AlarmModel]) = {
+    val sjxTask = Task[Unit] {
+      val content = <table>{ mod.map(_.xmlMessage) }</table>
+      Platform.runLater(
+        Try(engine.loadContent(content.toString)) match {
+          case Success(_) ⇒ logger.debug("running  UpdatableRoot OK: ")
+          case Failure(e) ⇒ logger.error("Error: " + e)
+        })
+
+    }
+    sjxTask.run
+  }
+}
+
 @sfxml
-class RootController extends Logging {
-  //  println("msgRatesChart is " + msgRatesChart)
-  //  val toChartData = (xy: (String, Int)) ⇒ XYChart.Data[String, Int](xy._1, xy._2)
-  //  val series = new XYChart.Series[String, Int] {
-  //    name = "Publish"
-  //    data = Seq(("10:00:00", 0),
-  //      ("10:00:10", 10),
-  //      ("10:00:20", 20),
-  //      ("10:00:30", 10),
-  //      ("10:00:40", 4),
-  //      ("10:00:50", 3),
-  //      ("10:01:00", 0),
-  //      ("10:00:10", 0),
-  //      ("10:00:20", 0)).map(toChartData)
-  //  }
-  //  //  val obuf = ObservableBuffer(series)
-  //  msgRatesChart.data = series
-  // event handlers are simple public methods:
+class RootController(val webConsole: WebView) extends UpdatableRoot {
+  val engine = webConsole.engine
+
+  engine.loadContent(
+    { <h1>OK</h1> }.toString)
+  MainActor.sender ! this
+  logger.debug("this = " + this)
   def tabSelectionChanged(ev: Event) = {
     logger.debug("tabSelectionChanged : " + ev)
   }

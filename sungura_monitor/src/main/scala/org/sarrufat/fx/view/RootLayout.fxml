@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.web.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
@@ -92,6 +93,15 @@
 						</AnchorPane>
 					</content>
 				</Tab>
+            <Tab text="Alarms">
+              <content>
+                <AnchorPane>
+                     <children>
+                        <WebView fx:id="webConsole" contextMenuEnabled="false" fontSmoothingType="GRAY" prefHeight="610.0" prefWidth="1034.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
 			</tabs>
 		</TabPane>
 	</center>
