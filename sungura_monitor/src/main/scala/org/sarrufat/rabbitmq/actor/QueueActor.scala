@@ -33,14 +33,15 @@ object QueueActor extends Logging {
       case Success(somethingUnexpected)       ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)                     ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, 60 seconds)
-    val ret = retProm.future.value.get
-    logger.debug("Recibido: " + ret.get)
-    QueueJsonWrapper(ret.get)
+    retProm.future onComplete {
+      case Success(res) ⇒ MainActor.sender ! QueueJsonWrapper(res)
+      case Failure(f)   ⇒ MainActor.sender ! new Failure(f)
+
+    }
   }
 }
 class QueueActor extends Actor {
   def receive = {
-    case PulseRequest(x) ⇒ context.parent ! QueueActor.sendREST
+    case PulseRequest(x) ⇒ QueueActor.sendREST
   }
 }

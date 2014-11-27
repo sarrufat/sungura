@@ -11,6 +11,7 @@ import spray.client.pipelining.{ Get, WithTransformation, WithTransformerConcate
 import spray.http.BasicHttpCredentials
 import spray.httpx.SprayJsonSupport._
 import grizzled.slf4j.Logging
+import org.sarrufat.rabbitmq.json.Overview
 
 case class Error(msg: String) extends Exception(msg)
 
@@ -19,15 +20,9 @@ object OverviewActor extends Logging {
 
   private val propsOverviewActor = Props[OverviewActor]
   implicit val system = ActorSystem.create
-  lazy val sender = system.actorOf(propsOverviewActor)
+  //  lazy val sender = system.actorOf(propsOverviewActor)
 
   import system.dispatcher // execution context for futures below
-  //  import scala.concurrent.ExecutionContext.Implicits._
-  //  private lazy val cancellable = ActorSystem().scheduler.schedule(0 milliseconds,
-  //    5 second,
-  //    sender,
-  //    new MakeRequest)
-  //  def startPoll = cancellable
   import org.sarrufat.rabbitmq.json.OverviewProtocol._
   private val pipeline = sendReceive ~> unmarshal[Overview]
   private val credentials = BasicHttpCredentials(MainUIFX.USER, MainUIFX.PASSWORD)
@@ -42,18 +37,22 @@ object OverviewActor extends Logging {
       case Success(somethingUnexpected) ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)               ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, 60 seconds)
-    val ret = retProm.future.value.get
-    logger.debug("Recibido: " + ret.get)
-    OverviewWTS(ret.get)
+    retProm.future.onComplete {
+      case Success(ov) ⇒ MainActor.sender ! OverviewWTS(ov)
+      case Failure(f)  ⇒ { MainActor.sender ! new Failure(f) }
+    }
+    //    Await.ready(retProm.future, 60 seconds)
+    //    val ret = retProm.future.value.get
+    //    logger.debug("Recibido: " + ret.get)
+    //    OverviewWTS(ret.get))
   }
 }
 
 class MakeRequest
-class OverviewActor extends Actor with ActorLogging {
+class OverviewActor extends Actor with Logging {
 
   def receive = {
-    case PulseRequest('Overview) ⇒ context.parent ! OverviewActor.sendREST
+    case PulseRequest('Overview) ⇒ OverviewActor.sendREST
   }
 
 }

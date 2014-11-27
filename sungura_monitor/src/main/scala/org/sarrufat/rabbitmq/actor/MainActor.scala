@@ -12,6 +12,7 @@ import grizzled.slf4j.Logging
 import org.sarrufat.fx.controller.{ OverviewControllerActor, ConnectionsControllerActor, ExchangeControllerActor, QueueControllerActor }
 import org.sarrufat.rabbitmq.json._
 import org.sarrufat.fx.MainUIFX
+import scala.util.Failure
 
 object Command extends Enumeration {
   type CommandT = Value
@@ -115,7 +116,8 @@ class MainActor extends Actor with Logging {
     case st: StartTest ⇒ {
       testProdActor ! st
     }
-    case ov: OverviewWTS         ⇒ ovControllerActor ! ov
+    case ov: OverviewWTS ⇒
+      ovControllerActor ! ov; logger.debug("OverviewWTS")
     case conn: ConnectionWrapper ⇒ connControllerActor ! conn
     case chan: ChannelWrapper    ⇒ connControllerActor ! chan
     case exchg: ExchangeWrapper  ⇒ exchControllerActor ! exchg
@@ -126,6 +128,7 @@ class MainActor extends Actor with Logging {
       exchControllerActor ! ResetModel
       queueControlleActor ! ResetModel
     }
-    case _ ⇒ logger.warn("Unknow message")
+    case Failure(f) ⇒ logger.error(f)
+    case _          ⇒ logger.warn("Unknow message")
   }
 }

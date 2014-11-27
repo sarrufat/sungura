@@ -38,14 +38,15 @@ object ExchangeActor extends Logging {
       case Success(somethingUnexpected)          ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)                        ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, 60 seconds)
-    val ret = retProm.future.value.get
-    logger.debug("Recibido: " + ret.get)
-    ExchangeWrapper(ret.get)
+    retProm.future onComplete {
+      case Success(res) ⇒ MainActor.sender ! ExchangeWrapper(res)
+      case Failure(f)   ⇒ MainActor.sender ! new Failure(f)
+    }
+
   }
 }
 class ExchangeActor extends Actor {
   def receive = {
-    case PulseRequest(x) ⇒ context.parent ! ExchangeActor.sendREST
+    case PulseRequest(x) ⇒ ExchangeActor.sendREST
   }
 }

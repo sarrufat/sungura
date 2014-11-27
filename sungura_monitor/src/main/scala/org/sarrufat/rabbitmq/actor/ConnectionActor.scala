@@ -39,10 +39,11 @@ object ConnectionActor extends Logging {
       case Success(somethingUnexpected)       ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)                     ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, 60 seconds)
-    val ret = retProm.future.value.get
-    logger.debug("Recibido: " + ret.get)
-    ConnectionWrapper(ret.get)
+    retProm.future onComplete {
+      case Success(con) ⇒ MainActor.sender ! ConnectionWrapper(con)
+      case Failure(f)   ⇒ MainActor.sender ! new Failure(f)
+    }
+
   }
 
   private def sendChannelREST = {
@@ -58,10 +59,11 @@ object ConnectionActor extends Logging {
       case Success(somethingUnexpected)             ⇒ retProm.failure(Error("somethingUnexpected"))
       case Failure(error)                           ⇒ retProm.failure(error)
     }
-    Await.ready(retProm.future, 60 seconds)
-    val ret = retProm.future.value.get
-    logger.debug("Recibido: " + ret.get)
-    ChannelWrapper(ret.get)
+    retProm.future onComplete {
+      case Success(chSeq) ⇒ MainActor.sender ! ChannelWrapper(chSeq)
+      case Failure(f)     ⇒ MainActor.sender ! new Failure(f)
+    }
+
   }
 
 }
@@ -69,8 +71,8 @@ object ConnectionActor extends Logging {
 class ConnectionActor extends Actor {
   def receive = {
     case PulseRequest('Connections) ⇒ {
-      context.parent ! ConnectionActor.sendREST
-      context.parent ! ConnectionActor.sendChannelREST
+      ConnectionActor.sendREST
+      ConnectionActor.sendChannelREST
     }
   }
 }
