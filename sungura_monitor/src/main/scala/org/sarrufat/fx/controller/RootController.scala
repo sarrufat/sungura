@@ -29,6 +29,9 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 import scala.util.Try
+import scala.xml.Elem
+import scalafx.scene.layout.HBox
+import scalafx.geometry.Pos
 
 class RootControllerActor extends Actor with Logging {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,9 +57,50 @@ object UpdatableRoot {
 }
 trait UpdatableRoot extends Logging {
   def engine: WebEngine
+  private val tableStyle = {
+    "table.alarm {" +
+      "font-family: verdana,arial,sans-serif;" +
+      "font-size:11px;" +
+      "color:#333333;" +
+      "border-width: 1px;" +
+      "border-color: #999999;" +
+      "border-collapse: collapse;" +
+      "}" +
+      "table.alarm th {" +
+      "background:#b5cfd2;" +
+      "border-width: 1px;" +
+      "padding: 8px;" +
+      "border-style: solid;" +
+      "border-color: #999999;" +
+      "}" +
+      "table.alarm td {" +
+      "background:#dcddc0;" +
+      "border-width: 1px;" +
+      "padding: 8px;" +
+      "border-style: solid;" +
+      "border-color: #999999;" +
+      "}"
+  }
+  def generateContent(t: Elem) = {
+    <html>
+      <head>
+        <style>
+          { tableStyle }
+        </style>
+      </head>
+      <body>
+        { t }
+      </body>
+    </html>
+  }
   def update(mod: List[AlarmModel]) = {
     val sjxTask = Task[Unit] {
-      val content = <table>{ mod.map(_.xmlMessage) }</table>
+      val content = generateContent(<table class="alarm">
+                                      <tr>
+                                        <th>Time</th><th>Message</th>
+                                      </tr>
+                                      { mod.map(_.xmlMessage) }
+                                    </table>)
       Platform.runLater(
         Try(engine.loadContent(content.toString)) match {
           case Success(_) ⇒ logger.debug("running  UpdatableRoot OK: ")
@@ -73,7 +117,7 @@ class RootController(val webConsole: WebView) extends UpdatableRoot {
   val engine = webConsole.engine
 
   engine.loadContent(
-    { <h1>OK</h1> }.toString)
+    { <h2>without errors</h2> }.toString)
   MainActor.sender ! this
   logger.debug("this = " + this)
   def tabSelectionChanged(ev: Event) = {

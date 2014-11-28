@@ -21,7 +21,7 @@
 							</image>
 						</ImageView>
 						<Separator orientation="VERTICAL" />
-                  <HBox>
+                  <HBox spacing="5.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#openSetup">
                            <graphic>
