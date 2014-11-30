@@ -26,17 +26,10 @@ object QueueActor extends Logging {
     lazy val responseFuture = pipeline {
       Get("http://" + MainActor.hostName + ":15672/api/queues") ~> addCredentials(credentials)
     }
-
-    lazy val retProm = Promise[Seq[QueueJsonObject]]()
     responseFuture onComplete {
-      case Success(con: Seq[QueueJsonObject]) ⇒ retProm.success(con)
-      case Success(somethingUnexpected)       ⇒ retProm.failure(Error("somethingUnexpected"))
-      case Failure(error)                     ⇒ retProm.failure(error)
-    }
-    retProm.future onComplete {
-      case Success(res) ⇒ MainActor.sender ! QueueJsonWrapper(res)
-      case Failure(f)   ⇒ MainActor.sender ! new Failure(f)
-
+      case Success(con: Seq[QueueJsonObject]) ⇒  MainActor.sender ! QueueJsonWrapper(con)
+      case Success(somethingUnexpected)       ⇒ MainActor.sender ! new Failure(new Exception("somethingUnexpected"))
+      case Failure(error)                     ⇒  MainActor.sender ! new Failure(error)
     }
   }
 }

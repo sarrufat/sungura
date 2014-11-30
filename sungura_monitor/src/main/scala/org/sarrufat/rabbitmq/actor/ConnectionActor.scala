@@ -33,17 +33,12 @@ object ConnectionActor extends Logging {
     lazy val responseFuture = pipeline {
       Get("http://" + MainActor.hostName + ":15672/api/connections") ~> addCredentials(credentials)
     }
-    lazy val retProm = Promise[Seq[ConnectionsJSON]]()
-    responseFuture onComplete {
-      case Success(con: Seq[ConnectionsJSON]) ⇒ retProm.success(con)
-      case Success(somethingUnexpected)       ⇒ retProm.failure(Error("somethingUnexpected"))
-      case Failure(error)                     ⇒ retProm.failure(error)
-    }
-    retProm.future onComplete {
-      case Success(con) ⇒ MainActor.sender ! ConnectionWrapper(con)
-      case Failure(f)   ⇒ MainActor.sender ! new Failure(f)
-    }
 
+    responseFuture onComplete {
+      case Success(con: Seq[ConnectionsJSON]) ⇒ MainActor.sender ! ConnectionWrapper(con)
+      case Success(somethingUnexpected)       ⇒ MainActor.sender ! new Failure(new Exception("somethingUnexpected"))
+      case Failure(error)                     ⇒ MainActor.sender ! new Failure(error)
+    }
   }
 
   private def sendChannelREST = {
@@ -53,17 +48,11 @@ object ConnectionActor extends Logging {
     lazy val responseFuture = pipeline2 {
       Get("http://" + MainActor.hostName + ":15672/api/channels") ~> addCredentials(credentials)
     }
-    lazy val retProm = Promise[Seq[ChannelJsonObject]]()
     responseFuture onComplete {
-      case Success(chanSeq: Seq[ChannelJsonObject]) ⇒ retProm.success(chanSeq)
-      case Success(somethingUnexpected)             ⇒ retProm.failure(Error("somethingUnexpected"))
-      case Failure(error)                           ⇒ retProm.failure(error)
+      case Success(chanSeq: Seq[ChannelJsonObject]) ⇒MainActor.sender ! ChannelWrapper(chanSeq)
+      case Success(somethingUnexpected)             ⇒  MainActor.sender ! new Failure(new Exception("somethingUnexpected"))
+      case Failure(error)                           ⇒  MainActor.sender ! new Failure(error)
     }
-    retProm.future onComplete {
-      case Success(chSeq) ⇒ MainActor.sender ! ChannelWrapper(chSeq)
-      case Failure(f)     ⇒ MainActor.sender ! new Failure(f)
-    }
-
   }
 
 }

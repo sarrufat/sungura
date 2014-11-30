@@ -31,20 +31,11 @@ object OverviewActor extends Logging {
     lazy val responseFuture = pipeline {
       Get("http://" + MainActor.hostName + ":15672/api/overview") ~> addCredentials(credentials)
     }
-    lazy val retProm = Promise[Overview]()
     responseFuture onComplete {
-      case Success(ov: Overview)        ⇒ retProm.success(ov)
-      case Success(somethingUnexpected) ⇒ retProm.failure(Error("somethingUnexpected"))
-      case Failure(error)               ⇒ retProm.failure(error)
+      case Success(ov: Overview)        ⇒ MainActor.sender ! OverviewWTS(ov)
+      case Success(somethingUnexpected) ⇒ MainActor.sender ! new Failure(new Exception("somethingUnexpected"))
+      case Failure(error)               ⇒ MainActor.sender ! new Failure(error)
     }
-    retProm.future.onComplete {
-      case Success(ov) ⇒ MainActor.sender ! OverviewWTS(ov)
-      case Failure(f)  ⇒ { MainActor.sender ! new Failure(f) }
-    }
-    //    Await.ready(retProm.future, 60 seconds)
-    //    val ret = retProm.future.value.get
-    //    logger.debug("Recibido: " + ret.get)
-    //    OverviewWTS(ret.get))
   }
 }
 

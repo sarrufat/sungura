@@ -32,17 +32,12 @@ object ExchangeActor extends Logging {
     lazy val responseFuture = pipeline {
       Get("http://" + MainActor.hostName + ":15672/api/exchanges") ~> addCredentials(credentials)
     }
-    lazy val retProm = Promise[Seq[ExchangeJsonObject]]()
+   
     responseFuture onComplete {
-      case Success(con: Seq[ExchangeJsonObject]) ⇒ retProm.success(con)
-      case Success(somethingUnexpected)          ⇒ retProm.failure(Error("somethingUnexpected"))
-      case Failure(error)                        ⇒ retProm.failure(error)
+      case Success(con: Seq[ExchangeJsonObject]) ⇒ MainActor.sender ! ExchangeWrapper(con)
+      case Success(somethingUnexpected)          ⇒MainActor.sender ! new Failure(new Exception("somethingUnexpected"))
+      case Failure(error)                        ⇒MainActor.sender ! new Failure(error)
     }
-    retProm.future onComplete {
-      case Success(res) ⇒ MainActor.sender ! ExchangeWrapper(res)
-      case Failure(f)   ⇒ MainActor.sender ! new Failure(f)
-    }
-
   }
 }
 class ExchangeActor extends Actor {
