@@ -37,6 +37,7 @@ class TestProducerActor extends Actor with Logging {
 
   def receive = {
     case StartTest(nm, sm) ⇒ doTest(nm, sm)
+    case msg: Publish      ⇒ TestProducerActor.producer ! msg
   }
 
   private def content(size: Int) = Array.fill(size)('0'.toByte)
@@ -47,7 +48,7 @@ class TestProducerActor extends Actor with Logging {
     TestProducerActor.producer ! QueueBind(queue = "test_queue", exchange = "test_exch", routing_key = "testKey")
     Try({
       for (nv ← 1 to numMessages)
-        TestProducerActor.producer ! Publish("test_exch", "testKey", content(messageSize), properties = None, mandatory = true, immediate = false)
+        self ! Publish("test_exch", "testKey", content(messageSize), properties = None, mandatory = true, immediate = false)
     }) match {
       case Success(s) ⇒ logger.debug("doTest OK")
       case Failure(e) ⇒ logger.error("Error", e)

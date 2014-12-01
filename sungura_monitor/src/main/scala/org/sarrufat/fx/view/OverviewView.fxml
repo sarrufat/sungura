@@ -14,7 +14,7 @@
    <children>
       <HBox>
          <children>
-            <LineChart fx:id="msgRatesChart" alternativeColumnFillVisible="true" title="Message rates" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+            <LineChart fx:id="msgRatesChart" alternativeColumnFillVisible="true" prefHeight="500.0" prefWidth="500.0" title="Message rates" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                <xAxis>
                   <CategoryAxis side="BOTTOM" />
                </xAxis>
@@ -23,7 +23,7 @@
                </yAxis>
             </LineChart>
             <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <LineChart fx:id="queueTotalsChart" title="Queued messages">
+            <LineChart fx:id="queueTotalsChart" prefHeight="500.0" prefWidth="500.0" title="Queued messages">
                <xAxis>
                   <CategoryAxis side="BOTTOM" />
                </xAxis>

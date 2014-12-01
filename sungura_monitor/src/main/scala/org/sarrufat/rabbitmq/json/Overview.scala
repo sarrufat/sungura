@@ -5,6 +5,8 @@ import spray.json.JsonFormat
 import scala.Double
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalUnit
+import java.time.temporal.ChronoUnit
 
 case class Overview(val management_version: String, val statistics_level: String, val rabbitmq_version: String, val erlang_version: String, val node: String, val erlang_full_version: String, val statistics_db_node: String, val exchange_types: List[ExchangeType], val message_stats: MessagesStats, val queue_totals: QueueTotals, val object_totals: ObjectTotals) {
   override def toString = "message_stats{ " + message_stats + "}"
@@ -47,6 +49,7 @@ class OverviewWTS(val stime: String, val ov: Overview) {
 object OverviewWTS {
   private val dtf = DateTimeFormatter.ofPattern("mm:ss")
   def apply(ov: Overview) = {
-    new OverviewWTS(dtf.format(LocalTime.now), ov)
+    val now = LocalTime.now.minus(5, ChronoUnit.SECONDS)
+    new OverviewWTS(dtf.format(now), ov)
   }
 }

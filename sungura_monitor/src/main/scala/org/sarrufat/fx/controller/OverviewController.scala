@@ -1,6 +1,5 @@
 package org.sarrufat.fx.controller
 
-import scala.util.{ Failure, Success, Try }
 import org.sarrufat.rabbitmq.actor.MainActor
 import org.sarrufat.rabbitmq.json.{ OverviewWTS, Overview, _ }
 import akka.actor.Actor
@@ -9,7 +8,6 @@ import grizzled.slf4j.{ Logger, Logging }
 import javafx.{ event ⇒ jfxe, scene ⇒ jfxs, stage ⇒ jfxst }
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.concurrent.Task
 import scalafx.event.{ ActionEvent, EventIncludes ⇒ sfxei }
 import scalafx.scene.Scene
 import scalafx.scene.chart.{ LineChart, XYChart }
@@ -17,19 +15,10 @@ import scalafx.stage.{ Modality, Stage }
 import scalafxml.core.{ FXMLView, NoDependencyResolver }
 import scalafxml.core.macros.sfxml
 import org.sarrufat.rabbitmq.actor.ResetModel
+import org.sarrufat.fx.controller.util.RunLaterTask
 
 class OverviewTask extends Logging {
-
-  private val sjxTask = Task[String] {
-
-    Platform.runLater(
-      Try(OverviewControllerActor.controller.setDatas(OverviewControllerActor.getAgent)) match {
-        case Success(s) ⇒ logger.debug("running  OverviewTask OK")
-        case Failure(e) ⇒ logger.error("Error: ", e)
-      })
-    "Resultado"
-  }
-  def run = sjxTask.run
+  new RunLaterTask(OverviewControllerActor.controller.setDatas(OverviewControllerActor.getAgent))
 }
 
 trait OVController {
@@ -60,13 +49,11 @@ class OverviewControllerActor extends Actor {
   def receive = {
     case ov: OverviewWTS ⇒ {
       OverviewControllerActor.updateAgent(ov)
-      val task = new OverviewTask
-      task.run
+      new OverviewTask
     }
     case ResetModel ⇒ {
       OverviewControllerActor.resetModel
-      val task = new OverviewTask
-      task.run
+      new OverviewTask
     }
   }
 }
