@@ -1,6 +1,5 @@
 package org.sarrufat.fx.controller
 
-import scala.util.{ Failure, Success, Try }
 import org.sarrufat.fx.model.QueueModel
 import org.sarrufat.rabbitmq.actor.MainActor
 import org.sarrufat.rabbitmq.json.QueueJsonWrapper
@@ -8,10 +7,10 @@ import akka.actor.Actor
 import grizzled.slf4j.Logging
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.concurrent.Task
 import scalafx.scene.control.TableView
 import scalafxml.core.macros.sfxml
 import org.sarrufat.rabbitmq.actor.ResetModel
+import org.sarrufat.fx.controller.util.RunLaterTask
 
 class QueueControllerActor extends Actor {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,16 +38,9 @@ class QueueController(val queueTab: TableView[QueueModel]) extends QueueUpdater 
   MainActor.startQueue
 
   def updateModel(model: List[QueueModel]): Unit = {
-    val sjxTask = Task[Unit] {
-      Platform.runLater(
-        Try({
-          obuf.clear
-          obuf ++= model
-        }) match {
-          case Success(s) ⇒ logger.debug("running  updateModel OK")
-          case Failure(e) ⇒ logger.error("Error: " + e)
-        })
-    }
-    sjxTask.run
+    new RunLaterTask({
+      obuf.clear
+      obuf ++= model
+    })
   }
 }

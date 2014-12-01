@@ -22,12 +22,12 @@ object ConnectionsControllerActor extends Logging {
     logger.debug("Recibido: " + msg)
     val newModel = msg.seq.map { cn ⇒ new ModelConnection(cn) }
     modelAgent send newModel.toList
-    new ConnectionsUpdaterTask().run
+    new ConnectionsUpdaterTask
   }
   private def updateChannelModel(msg: ChannelWrapper) {
     val newModel = msg.seq.map { x ⇒ new ChannelModel(x) }
     chanModelAgent send newModel.toList
-    new ChannelUpdaterTask().run
+    new ChannelUpdaterTask
   }
 
   def getModel = modelAgent get
@@ -44,8 +44,8 @@ object ConnectionsControllerActor extends Logging {
   private def resetModel = {
     modelAgent send List[ModelConnection]()
     chanModelAgent send List[ChannelModel]()
-    new ConnectionsUpdaterTask().run
-    new ChannelUpdaterTask().run
+    new ConnectionsUpdaterTask
+    new ChannelUpdaterTask
   }
 }
 class ConnectionsControllerActor extends Actor with Logging {

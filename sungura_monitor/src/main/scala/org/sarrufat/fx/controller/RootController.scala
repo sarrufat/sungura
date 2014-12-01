@@ -23,7 +23,6 @@ import org.sarrufat.fx.model.AlarmModel
 import org.sarrufat.rabbitmq.actor.MainActor
 import akka.agent.Agent
 import scalafx.scene.web.WebEngine
-import scalafx.concurrent.Task
 import scalafx.application.Platform
 import scala.util.Try
 import scala.util.Success
@@ -32,6 +31,7 @@ import scala.util.Try
 import scala.xml.Elem
 import scalafx.scene.layout.HBox
 import scalafx.geometry.Pos
+import org.sarrufat.fx.controller.util.RunLaterTask
 
 class RootControllerActor extends Actor with Logging {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -94,21 +94,14 @@ trait UpdatableRoot extends Logging {
     </html>
   }
   def update(mod: List[AlarmModel]) = {
-    val sjxTask = Task[Unit] {
-      val content = generateContent(<table class="alarm">
-                                      <tr>
-                                        <th>Time</th><th>Message</th>
-                                      </tr>
-                                      { mod.map(_.xmlMessage) }
-                                    </table>)
-      Platform.runLater(
-        Try(engine.loadContent(content.toString)) match {
-          case Success(_) ⇒ logger.debug("running  UpdatableRoot OK: ")
-          case Failure(e) ⇒ logger.error("Error: " + e)
-        })
+    val content = generateContent(<table class="alarm">
+                                    <tr>
+                                      <th>Time</th><th>Message</th>
+                                    </tr>
+                                    { mod.map(_.xmlMessage) }
+                                  </table>)
 
-    }
-    sjxTask.run
+    new RunLaterTask(engine.loadContent(content.toString))
   }
 }
 

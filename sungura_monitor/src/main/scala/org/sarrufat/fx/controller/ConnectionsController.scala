@@ -1,37 +1,21 @@
 package org.sarrufat.fx.controller
 
 import scala.util._
-
 import org.sarrufat.fx.model.{ ChannelModel, ModelConnection }
 import org.sarrufat.rabbitmq.actor.MainActor
-
 import grizzled.slf4j.Logging
 import javafx.beans.value.{ ChangeListener, ObservableValue }
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.concurrent.Task
 import scalafx.scene.control.TableView
 import scalafxml.core.macros.sfxml
+import org.sarrufat.fx.controller.util.RunLaterTask
 
 class ConnectionsUpdaterTask extends Logging {
-  private val sjxTask = Task[Unit] {
-    Platform.runLater(
-      Try(ConnectionsControllerStore.controller.updateModel(ConnectionsControllerActor.getModel)) match {
-        case Success(s) ⇒ logger.debug("running  ConnectionsUpdaterTask OK")
-        case Failure(e) ⇒ logger.error("Error: " + e)
-      })
-  }
-  def run = sjxTask.run
+  new RunLaterTask(ConnectionsControllerStore.controller.updateModel(ConnectionsControllerActor.getModel))
 }
 class ChannelUpdaterTask extends Logging {
-  private val sjxTask = Task[Unit] {
-    Platform.runLater(
-      Try(ConnectionsControllerStore.controller.updateChannModel(ConnectionsControllerActor.getChannModel)) match {
-        case Success(s) ⇒ logger.debug("running  ChannelUpdaterTask OK")
-        case Failure(e) ⇒ logger.error("Error: " + e)
-      })
-  }
-  def run = sjxTask.run
+  new RunLaterTask(ConnectionsControllerStore.controller.updateChannModel(ConnectionsControllerActor.getChannModel))
 }
 object ConnectionsControllerStore {
   private[controller] var controller: ConnControlerModelUpdater = null
@@ -52,7 +36,7 @@ class ConnectionsController(val connTable: TableView[ModelConnection], val chanT
     def changed(observable: ObservableValue[_ <: ModelConnection], oldValue: ModelConnection, newValue: ModelConnection): Unit = {
       if (newValue != null) ConnectionsControllerActor.setFilterChannel(true, newValue.pame.value)
       else ConnectionsControllerActor.setFilterChannel(false, "")
-      new ChannelUpdaterTask().run
+      new ChannelUpdaterTask
     }
   })
   ConnectionsControllerStore.controller = this
