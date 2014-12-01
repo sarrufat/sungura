@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="overviewRoot" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sarrufat.fx.controller.OverviewController">
+   <children>
+      <HBox>
+         <children>
+            <LineChart fx:id="msgRatesChart" alternativeColumnFillVisible="true" prefHeight="500.0" prefWidth="500.0" title="Message rates" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+               <xAxis>
+                  <CategoryAxis side="BOTTOM" />
+               </xAxis>
+               <yAxis>
+                  <NumberAxis label="M/S" side="LEFT" />
+               </yAxis>
+            </LineChart>
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <LineChart fx:id="queueTotalsChart" prefHeight="500.0" prefWidth="500.0" title="Queued messages">
+               <xAxis>
+                  <CategoryAxis side="BOTTOM" />
+               </xAxis>
+               <yAxis>
+                  <NumberAxis label="Messages" side="LEFT" />
+               </yAxis>
+            </LineChart>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
